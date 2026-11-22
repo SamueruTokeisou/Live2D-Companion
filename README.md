@@ -4,19 +4,20 @@
 
 长期目标是让人格、记忆、对话与事件调度独立于身体，逐步接入自己的 Live2D 或其他形象。先打好运行地基，再建设最小内核；完整规划见 [项目企划书](docs/public/PROJECT_PLAN.md)。
 
-当前为 **0.1.0-dev**。基于 [FULASKA Live2D Stage v1.1.0](https://github.com/FULASKA/-live2d-/releases/tag/v1.1.0) 的 MIT 代码进行改进，并增加角色管理与通用模型适配。模型不是本项目原创，也不随仓库分发。
+当前为 **0.2.0-dev**。基于 [FULASKA Live2D Stage v1.1.0](https://github.com/FULASKA/-live2d-/releases/tag/v1.1.0) 的 MIT 代码进行改进，并增加角色管理与通用模型适配。模型不是本项目原创，也不随仓库分发。
 
 ## 已经能做什么
 
 - 本地显示 Live2D 角色，透明窗口、置顶、移动和缩放。
-- 中文角色管理器：导入模型、切换角色、分别保存设置。
+- 中文角色管理器：单实例、启停互斥、导入进度与取消、分别保存设置。
+- 导入失败回滚；带版本的配置、有效备份和损坏恢复。
 - 导入前检查缺失文件，保留原件，只处理本地副本。
 - 把副本大贴图限制到最长边 2048，降低常驻资源需求。
 - 大肥鱼专属适配：表情、分区互动、待机和手势。
 - 通用角色模式：已有标准参数的视线、眨眼、呼吸、点击反馈和模型表情。
 - 30/60 帧设置；隐藏后停止出帧。
 
-大肥鱼与 Live2D 官方 Haru 已在一台 Windows 电脑实际显示并完成切换。仅做过基础功能与约三分钟连续采样，尚未完成通宵、休眠唤醒、多屏和广泛模型兼容测试。详见 [验证状态](docs/public/VALIDATION.md)。
+大肥鱼与 Live2D 官方 Haru 已在一台 Windows 电脑实际显示并完成切换。P1 已补齐启停、导入与配置保护并通过基础回归；长时、休眠唤醒、多屏和广泛模型兼容验收尚未完成。详见 [验证状态](docs/public/VALIDATION.md)。
 
 **尚未实现：** AI 聊天、语音识别、实时语音合成、长期记忆、跨平台和完整的可视化角色适配器。
 
@@ -65,6 +66,7 @@ python -m unittest discover -s tests -v
 Node.js 24 用于 JavaScript 语法检查与舞台调试。`source/desktop-v1.1.0` 是保留来源的引擎源码；`tools/pet_manager.py` 是本项目的角色管理器；`tools/setup.py` 将列出的本地改动部署到已校验的运行包。
 
 - [项目企划书](docs/public/PROJECT_PLAN.md)：分阶段规划、验收门槛与下一轮任务。
+- [P1 实施与验收](docs/public/P1_FOUNDATION.md)：当前交付、配置恢复和长测方法。
 - [路线图](ROADMAP.md)：当前进度与阶段摘要。
 - [玩法与灵感](docs/public/IDEAS.md)：社区项目参考与本项目构想。
 - [架构](docs/public/ARCHITECTURE.md)：代码入口、角色隔离和技术债。
