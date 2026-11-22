@@ -70,6 +70,16 @@ Node.js 24 用于 JavaScript 语法检查与舞台调试。`source/desktop-v1.1.
 - [维护约定](docs/public/MAINTENANCE.md)：需求、开发、测试和发布节奏。
 - [参与贡献](CONTRIBUTING.md)：提交问题与改动。
 
+## Contributors
+
+| 贡献者 | 角色与贡献 |
+| --- | --- |
+| [SamueruTokeisou](https://github.com/SamueruTokeisou) | 项目发起人、维护者与产品负责人：决定方向、体验与发布。 |
+| OpenAI Codex（AI 协作者） | 执行与技术协作：需求拆解、架构设计、代码实现、测试验证、文档与维护规划。由项目维护者发起工作并审核结果。 |
+| [FULASKA 及上游贡献者](https://github.com/FULASKA/-live2d-) | 提供本项目衍生的 Live2D Stage 引擎基础，原始许可与署名保留。 |
+
+欢迎通过 Issue 和 Pull Request 参与；后续实际贡献会持续记录。
+
 ## 许可与来源
 
 本项目代码使用 [MIT](LICENSE)。保留 FULASKA 及其依赖的署名；第三方声明见 [NOTICE](NOTICE.md)。大肥鱼的原画及拆分为神宫凉子，官方建模为霓虹猫_NeonNeko；模型请自行向原作者获取并遵守使用须知。
