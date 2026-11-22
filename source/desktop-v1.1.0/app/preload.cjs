@@ -29,6 +29,7 @@ const api = {
 
   // ---- 舞台窗口的指令通道（设置窗口用它改反应、读快照、导出补丁）----
   stageRpc: (op, payload) => ipcRenderer.invoke('stage:rpc', op, payload),
+  kernelClick: () => ipcRenderer.send('kernel:click'),
   chooseModel: () => ipcRenderer.invoke('model:choose'),
 
   // ---- 首次运行引导（找不到模型时打开的小窗口）----

@@ -11,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 URL = 'https://github.com/FULASKA/-live2d-/releases/download/v1.1.0/dafeiyu-live2d-pet-v1.1.0-win32-x64.zip'
 SHA256 = '42f2e876c78c67f374c2fb9bbdad6566b4e84860630a62585bb8e4e4558d1e30'
 RUNTIME = ROOT / 'runtime/desktop-v1.1.0/大肥鱼Live2d桌宠-发布版-win32-x64'
-PATCHES = ['app/placement.mjs', 'app/persistence.mjs', 'app/main.mjs', 'app/renderer.js', 'app/generic.js', 'app/settings.html',
+PATCHES = ['app/kernel/event-kernel.mjs', 'app/kernel/body-port.mjs', 'app/kernel/stage-adapter.mjs',
+           'app/kernel-panel.html', 'app/kernel-panel.js', 'app/placement.mjs', 'app/persistence.mjs', 'app/main.mjs', 'app/renderer.js', 'app/generic.js', 'app/settings.html',
            'app/settings.js', 'app/preload.cjs', 'src/server/stage-server.mjs']
 
 def extract_checked(archive, destination):
@@ -48,7 +49,7 @@ def install(root=ROOT):
     for directory in ['models', 'profiles', 'data']:
         (root / directory).mkdir(exist_ok=True)
     (root / 'data/install.json').write_text(json.dumps({
-        'upstream': URL, 'sha256': SHA256, 'localVersion': '0.2.0-dev',
+        'upstream': URL, 'sha256': SHA256, 'localVersion': '0.3.0-dev',
         'python': sys.version.split()[0]
     }, indent=2), encoding='utf-8')
     print('Installed. Use Start.cmd to open the role manager; import your own model.')

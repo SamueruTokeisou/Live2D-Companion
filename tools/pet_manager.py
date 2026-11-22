@@ -232,7 +232,7 @@ class Manager(tk.Tk):
                                ('桌宠设置', self.settings), ('退出桌宠', lambda: self.work(stop_all, '桌宠已退出'))]:
             btn = ttk.Button(buttons, text=label, command=command); btn.pack(side='left', padx=(0, 8)); self.buttons.append(btn)
         more = ttk.Frame(frame); more.pack(fill='x', pady=8)
-        for label, command in [('导入新角色…', self.import_dialog), ('打开角色文件夹', self.open_model), ('使用说明', self.help)]:
+        for label, command in [('导入新角色…', self.import_dialog), ('打开角色文件夹', self.open_model), ('使用说明', self.help), ('内核测试', self.kernel)]:
             btn = ttk.Button(more, text=label, command=command); btn.pack(side='left', padx=(0, 8)); self.buttons.append(btn)
         ttk.Separator(frame).pack(fill='x', pady=15)
         ttk.Label(frame, text='操作：左键互动；中键 / 右键拖动；Shift+滚轮缩放。\n找不到角色：Ctrl+Alt+L 解除穿透；Ctrl+Alt+Q 退出。\n关闭本窗口不会退出桌宠。', wraplength=580).pack(anchor='w')
@@ -307,6 +307,11 @@ class Manager(tk.Tk):
         p = self.selected()
         if not alive(p): messagebox.showinfo('先启动角色', '请先点击“启动 / 切换”。', parent=self); return
         self.work(lambda: rpc(p, 'local:settings'), '已打开桌宠设置')
+    def kernel(self):
+        p = self.selected()
+        if not alive(p):
+            messagebox.showinfo('先启动角色', '请先点击“启动 / 切换”。', parent=self); return
+        self.work(lambda: rpc(p, 'local:kernel'), '已打开内核本地测试，尚未接入 AI。')
     def import_dialog(self):
         path = filedialog.askopenfilename(title='选择模型入口 .model3.json', initialdir=str(ROOT), filetypes=[('Live2D 模型', '*.model3.json')])
         if not path: return

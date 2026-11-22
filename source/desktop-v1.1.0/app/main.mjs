@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url'
 import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
+import { EventKernel } from './kernel/event-kernel.mjs'
+import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
 import { visiblePosition } from './placement.mjs'
 import { readSettings, writeSettings } from './persistence.mjs'
 import { createStageServer } from '../src/server/stage-server.mjs'
@@ -458,7 +460,61 @@ app.whenReady().then(() => {
   for (const event of ['suspend', 'resume']) powerMonitor.on(event, () => { lifecycle[event]++; if (event === 'resume') recoverPlacement() })
   for (const event of ['display-added', 'display-removed', 'display-metrics-changed']) screen.on(event, () => { lifecycle.displayChanges++; recoverPlacement() })
 })
+let companionKernel = null
+let kernelEnabled = false
+function getKernel() {
+  if (!companionKernel) companionKernel = new EventKernel({ body: new StageBodyAdapter(callStageRpc), journal: row => {
+    const file = path.join(LOG_DIR, 'kernel-events.jsonl')
+    try {
+      if (statSafe(file)?.size > 1024 * 1024) renameSync(file, path.join(LOG_DIR, 'kernel-events.old.jsonl'))
+      appendFileSync(file, JSON.stringify(row) + '\n')
+    } catch {}
+  } })
+  return companionKernel
+}
+function disableKernel() {
+  kernelEnabled = false
+  if (companionKernel) { companionKernel.cancel(); companionKernel.pause(true) }
+}
+function openKernelPanel() {
+  const panel = openChild('kernel', { file: 'kernel-panel.html', width: 740, height: 720, minWidth: 560, minHeight: 530, title: '伙伴内核 · 本地测试' })
+  panel.once('closed', disableKernel)
+}
 async function callStageRpc(op, payload) {
+  if (op === 'local:kernel') { openKernelPanel(); return { ok: true } }
+  if (String(op).startsWith('kernel:')) {
+    try {
+      const kernel = getKernel()
+      const command = op.slice(7)
+      if (command === 'snapshot') return { ok: true, value: { ...kernel.snapshot(), enabled: kernelEnabled } }
+      if (command === 'enable') {
+        if (typeof payload?.value !== 'boolean') throw new Error('开关值无效')
+        if (payload.value) { kernelEnabled = true; kernel.pause(false) } else disableKernel()
+      } else {
+        if (!kernelEnabled) throw new Error('请先打开内核测试窗口')
+        if (command === 'event') {
+          const id = kernel.enqueue(payload?.type, { text: payload?.text })
+          if (kernel.records.some(r => r.eventId === id && r.status === 'rejected')) return { ok: false, error: '队列已满，请先处理或清空待办。' }
+        }
+        else if (command === 'cancel') kernel.cancel(typeof payload?.eventId === 'string' ? payload.eventId : null)
+        else if (command === 'pause' || command === 'quiet') {
+          if (typeof payload?.value !== 'boolean') throw new Error('开关值无效')
+          if (command === 'pause') kernel.pause(payload.value); else kernel.setQuiet(payload.value)
+        }
+        else if (command === 'timer') kernel.scheduleTimer(payload?.ms)
+        else if (command === 'capabilities') return { ok: true, value: await kernel.body.capabilities() }
+        else throw new Error('不支持的内核操作')
+      }
+      return { ok: true, value: { ...kernel.snapshot(), enabled: kernelEnabled } }
+    } catch { return { ok: false, error: '内核操作未完成：请检查输入、舞台状态或是否已打开本地测试。' } }
+  }
+  if (String(op).startsWith('body:')) {
+    if (!win || win.isDestroyed()) return { ok: false, error: '身体不可用' }
+    try {
+      const value = await win.webContents.executeJavaScript(`window.__companionBody?.(${JSON.stringify(op.slice(5))}, ${JSON.stringify(payload ?? null)})`)
+      return { ok: !!value, value }
+    } catch { return { ok: false, error: '身体请求失败' } }
+  }
   if (op === 'local:health') {
     let frame = null
     if (win && !win.isDestroyed()) {
@@ -652,6 +708,7 @@ async function createWindow() {
   // 起来不到 60 秒又崩 = 不是偶发；第 3 次就停手，只留日志，避免崩溃循环刷爆日志。
   let crashReloads = 0
   let stableTimer = null
+  win.webContents.on('did-start-loading', () => { if (kernelEnabled) disableKernel() })
   win.webContents.on('did-finish-load', () => {
     clearTimeout(stableTimer)
     stableTimer = setTimeout(() => { crashReloads = 0 }, 60000)
@@ -1037,6 +1094,7 @@ function toggleStageWindow() {
  * 只 reload 是改不动的，必须销毁窗口重新创建。托盘/设置/其他子窗口都不受影响。
  */
 async function restartStage() {
+  disableKernel()
   restarting = true
   try {
     flog('[stage] 重启引擎')
@@ -1166,6 +1224,9 @@ function wireIpc() {
     try { return await writeActionsFile(data) } catch (e) { return { ok: false, error: String(e?.message || e) } }
   })
   ipcMain.handle('actions:load', () => readActionsFile())
+  ipcMain.on('kernel:click', (event) => {
+    if (kernelEnabled && win && event.sender.id === win.webContents.id) getKernel().enqueue('click')
+  })
   ipcMain.on('shell:editor', () => openEditorPage())
   ipcMain.on('shell:settings', () => openChild('settings', {
     file: 'settings.html',
@@ -1382,6 +1443,7 @@ app.whenReady().then(async () => {
   // 退出时把托盘图标一起收掉，否则系统托盘里会留一个点不动的幽灵图标；
   // 顺手同步落一次配置 —— 异步写不保证在进程退出前完成，会把 settings.json 留成 0 字节。
   app.on('before-quit', () => {
+    companionKernel?.close()
     try { tray?.destroy?.(); tray = null } catch {}
     saveSettingsSync()
   })
