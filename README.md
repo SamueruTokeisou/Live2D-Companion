@@ -1,8 +1,8 @@
 # Live2D Companion
 
-一个从零基础爱好出发、免费优先、以本地运行为基础的 Windows Live2D 桌宠项目。
+一个从零基础爱好出发、免费优先的单角色伙伴项目，目前以 Windows Live2D 桌宠为开发基础。
 
-希望它既能陪你待在桌面上，也能让你逐步看懂模型、调整行为，最后接上自己制作的角色。
+长期目标是让人格、记忆、对话与事件调度独立于身体，逐步接入自己的 Live2D 或其他形象。先打好运行地基，再建设最小内核；完整规划见 [项目企划书](docs/public/PROJECT_PLAN.md)。
 
 当前为 **0.1.0-dev**。基于 [FULASKA Live2D Stage v1.1.0](https://github.com/FULASKA/-live2d-/releases/tag/v1.1.0) 的 MIT 代码进行改进，并增加角色管理与通用模型适配。模型不是本项目原创，也不随仓库分发。
 
@@ -64,7 +64,8 @@ python -m unittest discover -s tests -v
 
 Node.js 24 用于 JavaScript 语法检查与舞台调试。`source/desktop-v1.1.0` 是保留来源的引擎源码；`tools/pet_manager.py` 是本项目的角色管理器；`tools/setup.py` 将列出的本地改动部署到已校验的运行包。
 
-- [路线图](ROADMAP.md)：下一步、版本验收和明确不做的事。
+- [项目企划书](docs/public/PROJECT_PLAN.md)：分阶段规划、验收门槛与下一轮任务。
+- [路线图](ROADMAP.md)：当前进度与阶段摘要。
 - [玩法与灵感](docs/public/IDEAS.md)：社区项目参考与本项目构想。
 - [架构](docs/public/ARCHITECTURE.md)：代码入口、角色隔离和技术债。
 - [维护约定](docs/public/MAINTENANCE.md)：需求、开发、测试和发布节奏。

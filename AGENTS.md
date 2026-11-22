@@ -1,6 +1,6 @@
 # Agent maintenance guide
 
-Read README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENANCE.md before changing code. The repository owner makes product and release decisions; work autonomously within the requested task and verify concrete results.
+Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENANCE.md before changing code. The repository owner makes product and release decisions; work autonomously within the requested task and verify concrete results.
 
 - Explain progress in Chinese unless the user requests otherwise. The intended audience includes beginners with limited budgets.
 - Preserve source models. Imports must validate references and operate on independent local copies.
@@ -15,3 +15,5 @@ Read README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENA
 - Update public documentation with final behavior and limitations. Keep private machine handoff files out of Git.
 
 - Current product preference: prioritize one character. Multi-character co-stage is outside the current roadmap. External-project ideas are deferred research unless the user selects them for implementation.
+
+- The implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P4 controlled memory, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
