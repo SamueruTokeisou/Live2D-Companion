@@ -5,13 +5,15 @@
 //   - 窗口尺寸 A 与模型尺寸 B 分离：A 改窗口大小，B 只改模型缩放（渲染层 zoom），互不牵连
 //   - 穿透模式：win.setIgnoreMouseEvents(true, { forward: true })，用全局快捷键 Ctrl+Alt+L 找回
 //   - 退出：Ctrl+Alt+Q（穿透态下也能用）
-import { app, BrowserWindow, ipcMain, globalShortcut, shell, screen, dialog, Menu, Tray, nativeImage, nativeTheme, net } from 'electron'
+import { app, BrowserWindow, ipcMain, globalShortcut, shell, screen, dialog, Menu, Tray, nativeImage, nativeTheme, net, powerMonitor } from 'electron'
 import path from 'node:path'
 import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
+import { visiblePosition } from './placement.mjs'
+import { readSettings, writeSettings } from './persistence.mjs'
 import { createStageServer } from '../src/server/stage-server.mjs'
 
 // 控制台管道断开时（从终端/脚本启动后终端关闭）console.log 会抛 EPIPE，
@@ -451,7 +453,32 @@ async function writeActionsFile(data) {
   return { ok: true, file: actionsFile() }
 }
 /** 舞台窗口 RPC（设置窗口 / 编辑台共用；舞台没起来时明确返回失败） */
+const lifecycle = { suspend: 0, resume: 0, displayChanges: 0 }
+app.whenReady().then(() => {
+  for (const event of ['suspend', 'resume']) powerMonitor.on(event, () => { lifecycle[event]++; if (event === 'resume') recoverPlacement() })
+  for (const event of ['display-added', 'display-removed', 'display-metrics-changed']) screen.on(event, () => { lifecycle.displayChanges++; recoverPlacement() })
+})
 async function callStageRpc(op, payload) {
+  if (op === 'local:health') {
+    let frame = null
+    if (win && !win.isDestroyed()) {
+      frame = await Promise.race([
+        win.webContents.executeJavaScript('window.__probe?.frameInfo?.() ?? null'),
+        new Promise(resolve => setTimeout(() => resolve(null), 1500)),
+      ])
+    }
+    return { ok: true, value: {
+      schemaVersion: 1, uptimeSeconds: Math.round(process.uptime()),
+      versions: { electron: process.versions.electron, node: process.versions.node, chrome: process.versions.chrome },
+      visible: !!win && !win.isDestroyed() && win.isVisible(), frame,
+      processes: app.getAppMetrics().map(p => ({ pid: p.pid, type: p.type, cpu: p.cpu.percentCPUUsage, workingSetKiB: p.memory.workingSetSize, privateKiB: p.memory.privateBytes })),
+      displays: screen.getAllDisplays().map(d => ({ width: d.size.width, height: d.size.height, scale: d.scaleFactor, hz: d.displayFrequency })),
+      lifecycle: { ...lifecycle }, faultCount: FAULTS.length,
+      faultKinds: [...new Set(FAULTS.map(f => f.kind))],
+      settingsRecovered: existsSync(`${settingsFile()}.recovery.json`),
+      debugging: app.commandLine.hasSwitch('remote-debugging-port'),
+    } }
+  }
   if (op === 'local:ping') return { ok: true, value: { pid: process.pid } }
   if (op === 'local:visibility') { if (payload?.visible) win?.show(); else win?.hide(); return { ok: true } }
   if (op === 'local:quit') { setTimeout(() => app.quit(), 150); return { ok: true } }
@@ -481,8 +508,10 @@ function openEditorPage() {
 
 async function loadSettings() {
   try {
-    settings = { ...DEFAULTS, ...JSON.parse(await readFile(settingsFile(), 'utf8')) }
-  } catch { /* 首次启动：用默认 */ }
+    settings = { ...DEFAULTS, ...readSettings(settingsFile()) }
+  } catch (error) {
+    dialog.showErrorBox('配置需要恢复', String(error.message)); app.exit(1); throw error
+  }
   settings.clickThrough = false // 上次退出时若在穿透态，重启一律恢复正常，避免「点不到」
 }
 /** 模型路径在 exe 目录内就存相对路径（打包后换目录/换机不用改配置） */
@@ -496,27 +525,12 @@ function settingsForDisk() {
 }
 
 async function saveSettings() {
-  try {
-    await mkdir(path.dirname(settingsFile()), { recursive: true })
-    // ⚠️ 必须「先写 .tmp 再 rename」：直接 writeFile 会先把原文件截断，
-    // 进程在写入完成前退出（退出/强杀/崩溃）就留下 0 字节的 settings.json ——
-    // 用户的模型路径、引擎、原生核心开关全没了，下次启动直接弹首次运行引导（踩过两次）。
-    const file = settingsFile()
-    const tmp = `${file}.tmp`
-    await writeFile(tmp, JSON.stringify(settingsForDisk(), null, 2), 'utf8')
-    await rename(tmp, file)
-  } catch (e) { console.error('[settings] 保存失败', e) }
+  saveSettingsSync()
 }
 
-/** 退出前的同步落盘：异步写在这个时机不保证完成，等于把配置赌在进程调度上 */
 function saveSettingsSync() {
-  try {
-    mkdirSync(path.dirname(settingsFile()), { recursive: true })
-    const file = settingsFile()
-    const tmp = `${file}.tmp`
-    writeFileSync(tmp, JSON.stringify(settingsForDisk(), null, 2), 'utf8')
-    renameSync(tmp, file)
-  } catch (e) { console.error('[settings] 退出保存失败', e) }
+  try { writeSettings(settingsFile(), settingsForDisk()) }
+  catch (error) { ffault('settings:save', { message: String(error.message) }); console.error('[settings] 保存失败', error) }
 }
 
 // 渲染层按角色轮廓实时开关的穿透（区别于手动全窗穿透 settings.clickThrough）
@@ -573,6 +587,13 @@ async function applySettingsPatch(patch = {}) {
   return { ...settings }
 }
 
+function recoverPlacement() {
+  if (!win || win.isDestroyed()) return
+  const bounds = win.getBounds()
+  const target = visiblePosition(bounds, screen.getAllDisplays().map(d => d.workArea))
+  if (target.x !== bounds.x || target.y !== bounds.y) win.setPosition(target.x, target.y)
+}
+
 async function createWindow() {
   const { workArea } = screen.getPrimaryDisplay()
   // 原生 core 开关：环境变量优先，其次设置（两者都需要重启后生效）
@@ -606,6 +627,7 @@ async function createWindow() {
       backgroundThrottling: false,
     },
   })
+  recoverPlacement()
   win.setBackgroundColor('#00000000')
   try {
     const prefs = win.webContents.getLastWebPreferences ? win.webContents.getLastWebPreferences() : {}
