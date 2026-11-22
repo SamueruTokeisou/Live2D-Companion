@@ -13,3 +13,5 @@ Read README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENA
 - Normal use must not open a debugging port. Temporary acceptance tooling uses 9237; restart normally when done.
 - Generic mode must only drive parameters that exist, within their runtime ranges. Model-specific behavior belongs in an explicit adapter.
 - Update public documentation with final behavior and limitations. Keep private machine handoff files out of Git.
+
+- Current product preference: prioritize one character. Multi-character co-stage is outside the current roadmap. External-project ideas are deferred research unless the user selects them for implementation.
