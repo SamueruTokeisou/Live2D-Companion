@@ -1,3 +1,4 @@
+import { installBodyPort } from './kernel/body-port.mjs'
 // Live2D Stage —— 应用渲染层（透明窗口里的角色）。
 // 只做「角色 + 互动 + 设置」，验证台的调试面板不在这里。
 // 引擎分支：?engine=pixi7 用 pixi7 + mulmotion（乘法色分支，实测快一倍），默认走 pixi8 内核
@@ -649,11 +650,13 @@ async function main() {
     if (state.settings.profileMode === 'generic') {
       const { startGeneric } = await import('./generic.js')
       await startGeneric(shell, state.settings, state.caps)
+      installBodyPort(shell)
       return
     }
     // 先吃「改动补丁」：姿势/台词/反应/热区都能被覆盖，用户拿原模型也能复现我们的改动
     await applyStagePatch()
     await bootStage()
+    installBodyPort(shell)
     applyFps()
     // 实测帧率：每帧 +1，每秒结算一次（状态快照里能看到 cap 与 actual）
     let frames = 0
