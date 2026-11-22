@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>编辑台（实验） · Live2D Stage</title>
+<link rel="icon" href="/assets/app.ico">
+<link rel="stylesheet" href="./theme.css">
+<link rel="stylesheet" href="./editor.css">
+<script type="importmap">
+{ "imports": {
+  "pixi.js": "/vendor8/pixi.js/dist/pixi.mjs",
+  "untitled-pixi-live2d-engine/cubism": "/vendor8/untitled-pixi-live2d-engine/dist/cubism.es.js",
+  "@pixi/sound": "/vendor8/@pixi/sound/lib/index.mjs"
+} }
+</script>
+</head>
+<body>
+  <!-- 左：动作库 + 我的动作 -->
+  <aside id="left">
+    <header>编辑台（实验） <div id="theme-switch"></div></header>
+
+    <div id="src-tabs">
+      <button data-src="acts" class="on">动作</button>
+      <button data-src="on">启用</button>
+    </div>
+
+    <!-- 动作库：内置待机 / 官方动作 / 表情 / 热区（和「我的动作」合并成一页） -->
+    <div id="lib" class="pane on"></div>
+
+    <!-- 启用：现在到底哪些动作/表情/反应在生效 -->
+    <div id="on" class="pane">
+      <div class="section-label">预览正在写 <small id="on-preview-sub"></small></div>
+      <div id="on-preview" class="diag"></div>
+
+      <div class="section-label">舞台当前 <small id="on-stage-sub"></small></div>
+      <div id="on-stage" class="diag"></div>
+      <div class="row"><button id="on-refresh">刷新舞台状态</button></div>
+
+      <div class="section-label">热区反应表 <small>点名字 = 演一遍</small></div>
+      <div id="on-reactions" class="diag"></div>
+    </div>
+
+    <!-- 我的动作：可编辑的关键帧动作（和动作库同一页，默认显示） -->
+    <div id="mine" class="pane on">
+      <div class="fields">
+        <label>名称<input id="act-name" placeholder="动作名"></label>
+        <label>时长<input id="act-dur" type="number" min="100" step="50" value="1200"><span class="unit">ms</span></label>
+        <label class="stack">配字（一行一句，播放时随机出一句）
+          <textarea id="act-lines" rows="3" placeholder="杂鱼~杂鱼~&#10;这么简单都不会呀？"></textarea>
+        </label>
+      </div>
+      <div class="row">
+        <button id="act-new">新建</button>
+        <button id="act-dup">复制</button>
+        <button id="act-del">删除</button>
+      </div>
+      <ul id="act-list"></ul>
+      <div class="row">
+        <button id="act-save" class="primary" title="写入 actions.json（平时也会自动保存）">保存</button>
+        <button id="act-export">导出</button>
+        <label class="file">导入<input type="file" id="act-import" accept=".json"></label>
+      </div>
+      <div class="hint" id="store-hint">自动保存到 userData/actions.json</div>
+    </div>
+  </aside>
+
+  <!-- 中：预览 + 视图控制 + 时间轴 -->
+  <main id="mid">
+    <div id="stage-wrap">
+      <div id="preview"><div id="preview-hint">中键拖动平移 · 滚轮缩放 · 双击复位 · Alt+左键拖动 = 转头 · 左键点击测热区</div></div>
+      <div id="line-bubble"></div>
+
+      <div id="viewbar">
+        <div class="vb-group">
+          <span class="vb-label">大小</span>
+          <input type="range" id="v-zoom" min="0.3" max="6" step="0.01" value="1">
+          <i id="v-zoom-out">1.00×</i>
+        </div>
+        <div class="vb-group">
+          <span class="vb-label">左右</span>
+          <input type="range" id="v-x" min="-4" max="4" step="0.005" value="0">
+          <i id="v-x-out">0.00</i>
+        </div>
+        <div class="vb-group">
+          <span class="vb-label">上下</span>
+          <input type="range" id="v-y" min="-4" max="4" step="0.005" value="0">
+          <i id="v-y-out">0.00</i>
+        </div>
+        <label class="vb-check"><input type="checkbox" id="v-interact"> 交互</label>
+        <label class="vb-check"><input type="checkbox" id="v-regions"> 热区</label>
+        <button id="v-reset" title="回到居中、1.00×">复位</button>
+      </div>
+    </div>
+
+    <div id="timeline">
+      <div class="row">
+        <button id="play" class="primary">▶ 播放</button>
+        <button id="add-key">＋ 关键帧</button>
+        <button id="del-key">删关键帧</button>
+        <button id="copy-key" title="复制当前时间的关键帧（或此刻的值）">复制帧</button>
+        <button id="paste-key" title="把复制的值粘到当前时间">粘贴帧</button>
+        <span id="key-state" class="tag">无关键帧</span>
+        <span id="time-readout">0 / 1200 ms</span>
+        <span class="tag">速度</span>
+        <input type="range" id="speed" min="0.5" max="1" step="0.05" value="1" style="width:90px">
+        <span id="speed-readout">1.00×</span>
+      </div>
+      <input type="range" id="time" min="0" max="1200" step="10" value="0">
+      <div id="keys"></div>
+    </div>
+  </main>
+
+  <!-- 右：参数 + 诊断 -->
+  <aside id="right">
+    <header>参数 <small id="param-count"></small></header>
+    <div class="row">
+      <input id="param-search" placeholder="搜参数名 / Id">
+    </div>
+    <div class="section-label">已选（拖动即写入当前关键帧）</div>
+    <div id="param-active"><div class="empty">还没有参数：在下面列表点一个</div></div>
+
+    <div class="section-label">诊断 <small id="diag-sub"></small></div>
+    <div id="diag" class="diag"></div>
+
+    <div class="section-label">全部参数</div>
+    <ul id="param-list"></ul>
+  </aside>
+
+  <div id="toast"></div>
+  <script type="module" src="./editor.js"></script>
+</body>
+</html>

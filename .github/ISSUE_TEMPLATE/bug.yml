@@ -1,0 +1,21 @@
+name: Bug report / 故障
+description: 提交能复现的问题，不上传模型或私密日志。
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: 版本与环境
+      description: 项目版本、Windows 版本、显卡、角色模式。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤、预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏证据
+      description: 只提供必要错误信息。不要上传完整模型、口令、聊天记录或认证链接。

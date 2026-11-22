@@ -1,0 +1,19 @@
+name: Idea / 玩法建议
+description: 讲一个具体使用过程。
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 谁在什么情况下想做什么？
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 期待角色如何回应？怎样判断好用？
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 模型、联网、性能或费用方面的限制

@@ -1,0 +1,171 @@
+/* 应用壳：整窗透明，角色浮在桌面上 */
+/* 覆盖层不可选中：气泡是角色在「说话」，不是可复制的正文；拖窗口/划过时也不该拉出一片蓝色选区。
+   设置窗口与编辑器是普通窗口，走各自 CSS，不受这里影响。 */
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden;
+  user-select: none; -webkit-user-select: none; cursor: default;
+}
+body { font: 12px/1.55 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif; color: #e8eef8; }
+
+#stage { position: fixed; inset: 0; touch-action: none; cursor: grab; }
+#stage.dragging { cursor: grabbing; }
+#stage canvas { display: block; width: 100%; height: 100%; }
+
+/* 右键唤出的工具条：角色铺满窗口后，✥ 是唯一的「搬窗口」入口 */
+#tools {
+  position: fixed; right: 8px; top: 8px; display: flex; gap: 6px; padding: 5px;
+  background: rgba(16, 19, 26, 0.92); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px); z-index: 30;
+}
+#tools.hidden { display: none; }
+#tools .tool {
+  height: 28px; min-width: 54px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #151a24; color: #dbe7f7; font: 12px/1 system-ui, sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+#tools .tool:hover { border-color: rgba(120, 180, 255, 0.7); color: #fff; }
+#tools .tool.on { border-color: rgba(120, 180, 255, 0.9); background: rgba(91, 157, 255, 0.22); color: #eaf3ff; }
+#tools .tool.small { width: 26px; height: 26px; align-self: center; font-size: 13px; opacity: 0.7; }
+
+/* 右键设置面板已搬到独立窗口（settings.html），覆盖层不再有面板 */
+
+#toast {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  background: rgba(16, 19, 26, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px; padding: 6px 12px; font-size: 11px; opacity: 0;
+  transition: opacity 0.25s; pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* 性能浮层（F3）：常驻统计的可视化出口，不参与点击 */
+#perf {
+  position: fixed; left: 8px; top: 8px; z-index: 9999;
+  padding: 6px 8px; border-radius: 8px;
+  background: rgba(8, 12, 20, 0.82); color: #cfe0ff;
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  pointer-events: none; white-space: nowrap;
+}
+#perf b { color: #8fd0ff; }
+#perf span { display: block; color: #9fb6d6; }
+
+/* ===== 对话气泡（漫画式短句）=====
+   外形参考：粗描边 + 米白底 + 两个「思考点」当尾巴；尺寸由 bubble.js 给。 */
+#bubble {
+  /* --bs：随窗口缩放的统一比例（bubble.js setScale 写入），内边距/描边/尾巴都跟它走 */
+  --bs: 1;
+  position: fixed; z-index: 40; display: block;
+  min-width: calc(64px * var(--bs)); max-width: 268px;
+  padding: calc(9px * var(--bs)) calc(16px * var(--bs));
+  border-radius: calc(22px * var(--bs));
+  background: #fdfaf3;
+  color: #23283a;
+  /* 描边取角色本身的天蓝（裙子亮片/尾鳍那一档），跟形象统一 */
+  border: calc(3px * var(--bs)) solid #5cc3ef;
+  box-shadow: 0 calc(8px * var(--bs)) calc(20px * var(--bs)) rgba(10, 18, 38, 0.3), 0 0 0 1px rgba(92, 195, 239, 0.25);
+  line-height: 1.34; font-weight: 700; letter-spacing: 0.02em;
+  text-align: center;
+  white-space: pre-wrap; word-break: break-word;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  user-select: none; -webkit-user-select: none;
+  opacity: 0; transform: translateY(4px) scale(0.97);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  scrollbar-width: thin; scrollbar-color: rgba(70, 105, 165, 0.45) transparent;
+}
+#bubble.on { opacity: 1; transform: none; }
+/* 表情包配图（AI 发图时）：图在上、字在下，等比缩到气泡宽度内 */
+#bubble img.bubble-img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(150px * var(--bs));
+  margin: 0 auto calc(6px * var(--bs));
+  border-radius: calc(12px * var(--bs));
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+#bubble.empty { display: none; }
+#bubble::-webkit-scrollbar { width: 6px; }
+#bubble::-webkit-scrollbar-thumb { background: rgba(70, 105, 165, 0.4); border-radius: 3px; }
+
+/* 尾巴：两个由大到小的「思考点」，斜着指向角色 */
+#bubble::before, #bubble::after {
+  content: ""; position: absolute; border-radius: 50%;
+  background: #fdfaf3; border: calc(3px * var(--bs)) solid #5cc3ef;
+  box-sizing: border-box;
+}
+#bubble::before { width: calc(12px * var(--bs)); height: calc(12px * var(--bs)); }
+#bubble::after { width: calc(7px * var(--bs)); height: calc(7px * var(--bs)); border-width: calc(2px * var(--bs)); }
+#bubble[data-anchor="right"][data-side="above"]::before { left: calc(18px * var(--bs)); bottom: calc(-18px * var(--bs)); }
+#bubble[data-anchor="right"][data-side="above"]::after { left: calc(9px * var(--bs)); bottom: calc(-32px * var(--bs)); }
+/* 贴角模式（默认）：点点贴气泡框的**左下角**（选左侧时镜像到右下角） */
+#bubble[data-anchor="corner-right"][data-side="above"]::before { left: calc(16px * var(--bs)); bottom: calc(-16px * var(--bs)); }
+#bubble[data-anchor="corner-right"][data-side="above"]::after { left: calc(6px * var(--bs)); bottom: calc(-28px * var(--bs)); }
+#bubble[data-anchor="corner-left"][data-side="above"]::before { right: calc(16px * var(--bs)); bottom: calc(-16px * var(--bs)); }
+#bubble[data-anchor="corner-left"][data-side="above"]::after { right: calc(6px * var(--bs)); bottom: calc(-28px * var(--bs)); }
+/* 兜底居中挂在头顶：点点放在正下方、落在「框与头之间」的缝里 */
+#bubble[data-anchor="center"][data-side="above"]::before { left: 50%; margin-left: calc(-6px * var(--bs)); bottom: calc(-16px * var(--bs)); }
+#bubble[data-anchor="center"][data-side="above"]::after { left: 50%; margin-left: calc(-3.5px * var(--bs)); bottom: calc(-28px * var(--bs)); }
+#bubble[data-anchor="left"][data-side="above"]::before { right: calc(18px * var(--bs)); bottom: calc(-18px * var(--bs)); }
+#bubble[data-anchor="left"][data-side="above"]::after { right: calc(9px * var(--bs)); bottom: calc(-32px * var(--bs)); }
+#bubble[data-side="below"]::before { top: calc(-18px * var(--bs)); }
+#bubble[data-side="below"]::after { top: calc(-32px * var(--bs)); }
+#bubble[data-anchor="right"][data-side="below"]::before { left: calc(18px * var(--bs)); }
+#bubble[data-anchor="right"][data-side="below"]::after { left: calc(9px * var(--bs)); }
+#bubble[data-anchor="left"][data-side="below"]::before { right: calc(18px * var(--bs)); }
+#bubble[data-anchor="left"][data-side="below"]::after { right: calc(9px * var(--bs)); }
+
+/* 状态色：只改底色氛围，描边保持角色天蓝（不改边色） */
+#bubble[data-state="thinking"] { background: #f4f8fd; }
+#bubble[data-state="working"] { background: #f2f8ff; }
+#bubble[data-state="waiting"] { background: #fff9ee; }
+#bubble[data-state="success"] { background: #f2fbf4; }
+#bubble[data-state="error"] { background: #fdf3f3; }
+
+/* ---------- 窗口边框（设置里打开；拖边/拖角等比缩放） ---------- */
+#frame {
+  position: fixed; inset: 0; z-index: 70; pointer-events: none;
+  border: 2px solid rgba(112, 186, 255, 0.92);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), inset 0 0 18px rgba(96, 170, 255, 0.22);
+}
+#frame.hidden { display: none; }
+#frame .fh { position: absolute; pointer-events: auto; }
+#frame .fh.n, #frame .fh.s { left: 16px; right: 16px; height: 12px; cursor: ns-resize; }
+#frame .fh.n { top: 0; }
+#frame .fh.s { bottom: 0; }
+#frame .fh.e, #frame .fh.w { top: 16px; bottom: 16px; width: 12px; cursor: ew-resize; }
+#frame .fh.e { right: 0; }
+#frame .fh.w { left: 0; }
+#frame .fh.nw, #frame .fh.ne, #frame .fh.sw, #frame .fh.se {
+  width: 20px; height: 20px;
+}
+#frame .fh.nw { left: 0; top: 0; cursor: nwse-resize; }
+#frame .fh.ne { right: 0; top: 0; cursor: nesw-resize; }
+#frame .fh.sw { left: 0; bottom: 0; cursor: nesw-resize; }
+#frame .fh.se { right: 0; bottom: 0; cursor: nwse-resize; }
+/* 角上补一个亮块，透明背景下也能看出抓手 */
+#frame .fh.nw::after, #frame .fh.ne::after, #frame .fh.sw::after, #frame .fh.se::after {
+  content: ""; position: absolute; inset: 5px; border-radius: 3px;
+  background: rgba(112, 186, 255, 0.55);
+}
+
+/* ---------- 尾巴藏起来后的「显示尾巴」气泡 ----------
+ * 圆形、白底蓝边，里面是 DeepSeek 蓝鲸 logo，贴在大腿中部外侧（不压腿）。
+ * 只在尾巴消失时出现：那时尾巴像素全透明，窗口级 alpha 掩码会把指针判成「不在角色身上」
+ * 而穿透给桌面，热区收不到事件 —— 这个 DOM 气泡是唯一的找回入口。
+ */
+#tail-restore {
+  position: fixed; left: 0; top: 0; z-index: 9998;
+  display: none; align-items: center; justify-content: center;
+  padding: 0; border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(77, 107, 254, 0.9);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(77, 107, 254, 0.32), 0 0 0 3px rgba(255, 255, 255, 0.6);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+#tail-restore.on { display: flex; }
+#tail-restore:hover { transform: scale(1.06); box-shadow: 0 8px 22px rgba(77, 107, 254, 0.42), 0 0 0 3px rgba(255, 255, 255, 0.7); }
+#tail-restore:active { transform: scale(0.98); }
+#tail-restore img { width: 78%; height: 78%; object-fit: contain; display: block; pointer-events: none; }

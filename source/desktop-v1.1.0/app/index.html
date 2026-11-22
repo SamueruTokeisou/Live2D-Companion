@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live2D Stage</title>
+<link rel="icon" href="/assets/app.ico">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "pixi.js": "/vendor8/pixi.js/dist/pixi.mjs",
+  "untitled-pixi-live2d-engine/cubism": "/vendor8/untitled-pixi-live2d-engine/dist/cubism.es.js",
+  "@pixi/sound": "/vendor8/@pixi/sound/lib/index.mjs"
+} }
+</script>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <!-- 角色说的话 / DSH 当前在干什么，都走这个气泡 -->
+  <div id="bubble" class="empty"></div>
+
+  <!-- 窗口边框（设置里打开）：淡蓝高亮 + 八个把手，拖边/拖角等比缩放 -->
+  <div id="frame" class="hidden" aria-hidden="true"></div>
+
+  <!-- 右键工具条：只剩一个前倾开关（设置/退出都在系统托盘里） -->
+  <div id="tools" class="hidden">
+    <button class="tool" id="tool-lean" title="前倾 / 恢复（右键角色）">前倾</button>
+  </div>
+
+  <!-- 引擎分支：?engine=pixi7 时用 pixi7 + mulmotion（乘法色分支），默认 pixi8 + untitled -->
+  <script>
+    if (new URLSearchParams(location.search).get('engine') === 'pixi7') {
+      document.write('<script src="/vendor/live2dcubismcore.min.js"><\/script>')
+      document.write('<script src="/vendor7/pixi7.min.js"><\/script>')
+      document.write('<script src="/vendor7/cubism4mul.min.js"><\/script>')
+    }
+  </script>
+
+  <script src="./renderer.js" type="module"></script>
+</body>
+</html>

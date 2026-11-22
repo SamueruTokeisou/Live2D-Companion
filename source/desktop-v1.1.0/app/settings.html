@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设置 · Live2D Stage</title>
+<link rel="icon" href="/assets/app.ico">
+<link rel="stylesheet" href="./theme.css">
+<link rel="stylesheet" href="./settings.css">
+</head>
+<body class="settings">
+<main id="panel">
+
+  <section>
+    <h3>外观</h3>
+    <div class="row"><div id="theme-switch"></div></div>
+    <div class="hint">设置窗口与动作编辑器共用这一套主题；「跟随系统」跟随 Windows 的浅色/深色模式。</div>
+  </section>
+
+  <section>
+    <h3>窗口</h3>
+    <div class="row"><label><input type="checkbox" id="border"> 显示窗口边框（拖边/角缩放）</label></div>
+    <div class="row"><span class="lbl">上下留白</span><input type="range" id="pad-y" min="0" max="0.18" step="0.01"><span id="pad-y-readout" class="readout"></span></div>
+    <div class="row"><button id="win-center">居中</button></div>
+    <div class="row"><label><input type="checkbox" id="drag-physics"> 拖拽物理（拖动时让模型自己跟着甩）</label></div>
+    <div class="hint">角色大小：把鼠标放在<b>头 / 胸 / 腰 / 胯 / 裙</b>上，<b>按住中键滚轮</b>缩放（以光标为中心，窗口跟着角色走）；也可打开「窗口边框」拖边/角缩放。</div>
+    <div class="hint"><b>中键或右键按住拖角色</b>搬窗口（左键留给互动：点/摸/捏）；空地上右键点一下 → 前倾开关。</div>
+  </section>
+
+  <section>
+    <h3>性能</h3>
+    <div class="row"><label>帧率 <select id="target-fps"><option value="30">30 帧 · 省资源</option><option value="60">60 帧 · 更流畅</option></select></label></div>
+    <div class="hint">默认 30 帧；隐藏到托盘时停止渲染。角色较复杂时可选择省资源档。</div>
+  </section>
+
+  <section>
+    <h3>跟随</h3>
+    <div class="row"><label><input type="checkbox" id="gaze"> 眼 / 头 / 身体跟随鼠标</label></div>
+    <div class="row"><span class="lbl">强度</span><input type="range" id="strength" min="0" max="1" step="0.05"></div>
+    <div class="row"><span class="lbl">转头幅度</span><input type="range" id="head-gain" min="0.5" max="2" step="0.05"><span id="head-gain-readout" class="readout"></span></div>
+    <div class="row"><span class="lbl">抚摸晃动</span><input type="range" id="pet-gain" min="0" max="3" step="0.1"></div>
+  </section>
+
+  <section>
+    <h3>待机动作</h3>
+    <div class="row"><label><input type="checkbox" id="idle"> 不互动时自己在动</label></div>
+    <div class="row"><label><input type="checkbox" id="random-faces"> 待机随机小表情（笑 / 吐舌头 / 眨眼）</label></div>
+    <div class="row"><span class="lbl">频率</span><input type="range" id="idle-speed" min="0.5" max="2.5" step="0.1"><span id="idle-speed-readout" class="readout"></span></div>
+    <div class="row"><span class="lbl">动作速度</span><input type="range" id="action-speed" min="0.5" max="1" step="0.05"><span id="action-speed-readout" class="readout"></span></div>
+    <div class="hint">频率只决定「多久换一段动作」；动作速度决定「动作播多快」。上限 1.0 = 预设速度（模型自带动作的节奏），手和裙子的贴图切换不跟着变速。</div>
+    <div class="hint">常驻换重心 + 每隔几秒来一段小动作（伸懒腰 / 东张西望 / 打瞌睡 / 理头发…），偶尔配一句小台词</div>
+    <div class="hint">「随机小表情」是待机时自己冒出来的笑/吐舌头/单眼眨眼（9–19 秒一次）。觉得「脸怎么自己变了」就关掉它 —— 关掉只影响待机，互动和动作表情照常。</div>
+  </section>
+
+  <section>
+    <h3>性能（改完需重启舞台）</h3>
+    <div class="row"><label><input type="checkbox" id="native-core"> 原生 Cubism Core（N-API 桥，求值快约 5 倍）</label></div>
+    <div class="row"><label>渲染引擎
+      <select id="engine-select">
+        <option value="default">pixi8 + untitled（默认，边缘干净）</option>
+        <option value="pixi7">pixi7 + mulmotion（更快，但尾巴/裙边有块状软边，实验）</option>
+      </select>
+    </label></div>
+    <div class="hint">原生 Core 把每帧的顶点求值从约 8.2ms 降到约 1.7ms，逐顶点结果与官方 WASM 版完全一致；pixi7 分支绘制更快。两者都开是目前最快的组合（实测单帧约 12.7ms / 79fps）。</div>
+    <div class="row"><button id="restart-engine">立即重启引擎</button></div>
+    <div class="hint">改完上面的两项后点这里（或托盘菜单「重启引擎」），不用退出整个应用。</div>
+  </section>
+
+  <section>
+    <h3>对话气泡</h3>
+    <div class="row"><label><input type="checkbox" id="bubble-on"> 显示气泡</label></div>
+    <div class="hint">漫画式：固定贴着右上角。字少用大字，字多自动缩字、框变大，撑满就滚动</div>
+  </section>
+
+  <section>
+    <h3>模型表情 / 动作</h3>
+    <div class="row"><span class="lbl">体型</span><input type="range" id="body-shape" min="0" max="1" step="0.01"><span id="body-shape-readout" class="readout"></span></div>
+    <div class="hint">0 = 默认体型，0.4 ≈ 体型1，1 = 体型2（原包三个体型表达式改成连续拉条）</div>
+    <div class="row"><button id="mode-normal" class="wide">回到常态（清空表情）</button></div>
+    <div class="hint">表情（原包全部表情，点一下叠加、再点一下取消）</div>
+    <div id="expr-list" class="chips"></div>
+    <div class="hint">官方动作（模型自带的 motion3，名字照原样）</div>
+    <div id="pose-list" class="chips"></div>
+    <div class="hint">我们的预设（用官方参数拼的，不是原包动作）</div>
+    <div id="pose-custom" class="chips"></div>
+    <div class="hint">点角色<b>额头</b>也会在 常态 / 爱心眼 / 眼镜 之间循环</div>
+  </section>
+
+  <section>
+    <h3>模型</h3>
+    <div class="row"><button id="choose-model" class="wide">打开角色管理器（导入 / 切换）</button></div>
+    <div class="hint">发布包不带模型：选你自己拥有的 .model3.json 即可；模型版权归原作者，禁止二次分发</div>
+  </section>
+
+  <section>
+    <h3>动作与发布</h3>
+    <div class="row"><button id="open-editor" class="wide">打开编辑台（实验）</button></div>
+    <div class="row"><button id="patch-export" class="wide">导出改动补丁</button></div>
+    <div class="hint">补丁只含姿势/台词/反应/热区，<b>不含模型本体</b>；发布时发这个文件，下载者用自己的原模型加载</div>
+  </section>
+
+  <section>
+    <h3>窗口行为</h3>
+    <div class="row"><label><input type="checkbox" id="top"> 置顶</label></div>
+    <div class="row"><label><input type="checkbox" id="click-through"> 穿透模式（鼠标穿过）</label></div>
+    <div class="row"><label><input type="checkbox" id="auto-start" disabled> 开机自启（当前请使用桌面快捷方式启动）</label></div>
+    <div class="hint">穿透时角色区不可点，舞台里会浮出「恢复鼠标」按钮；也可按 <b>Ctrl+Alt+L</b> 找回，<b>Ctrl+Alt+Q</b> 退出</div>
+  </section>
+
+  <section>
+    <h3>更新</h3>
+    <div class="row"><label><input type="checkbox" id="update-check"> 启动时检查更新</label></div>
+    <div class="hint">启动 8 秒后查一次仓库的最新版本；有新版本只在气泡里说一句，不会自动下载。</div>
+  </section>
+
+  <section class="footer">
+    <button id="quit">退出</button>
+  </section>
+
+  <div class="hint">设置里打开「窗口边框」后可拖边/角缩放 · 拖角色移动窗口 · 空白处右键唤出工具条</div>
+  <div id="status" class="status"></div>
+</main>
+<script src="./settings.js" type="module"></script>
+</body>
+</html>

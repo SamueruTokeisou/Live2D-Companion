@@ -1,0 +1,11 @@
+{
+  "name": "cubism-core-native",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Live2D Cubism Core 原生桥（N-API），给舞台替换 WASM core 用",
+  "main": "index.mjs",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "test": "node test.mjs"
+  }
+}

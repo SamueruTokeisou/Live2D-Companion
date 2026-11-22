@@ -1,0 +1,32 @@
+{
+  "name": "live2d-stage",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "main": "app/main.mjs",
+  "description": "协作工作台的角色演出层：透明窗口、双路动作控制、分区互动、关键帧动画。开发期只做接口。",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "core": "node scripts/fetch-core.mjs",
+    "shot": "node scripts/shot.mjs",
+    "app": "electron app/main.mjs",
+    "ctl": "node tools/stage-cli.mjs",
+    "pack": "node scripts/pack.mjs",
+    "shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/shortcut.ps1",
+    "release": "node scripts/release.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "pinyin-pro": "^3.29.5",
+    "pixi.js": "^8.22.0",
+    "untitled-pixi-live2d-engine": "^1.4.0"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^33.4.11",
+    "puppeteer-core": "^24.43.1"
+  }
+}
