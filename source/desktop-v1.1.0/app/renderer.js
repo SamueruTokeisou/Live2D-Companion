@@ -1,3 +1,4 @@
+import { createConversationAdapter } from './kernel/conversation-adapter.mjs'
 import { installBodyPort } from './kernel/body-port.mjs'
 // Live2D Stage —— 应用渲染层（透明窗口里的角色）。
 // 只做「角色 + 互动 + 设置」，验证台的调试面板不在这里。
@@ -490,7 +491,7 @@ function applyAction(msg) {
     case 'say': {
       const text = String(a.text ?? '')
       if ((!text && !a.image) || !state.bubble) break
-      const image = a.image ? `/api/meme/${encodeURIComponent(String(a.image))}` : ''
+      const image = a.image ? `/api/meme/${encodeURIComponent(String(a.image))}?token=${encodeURIComponent(state.settings.token)}` : ''
       const ms = Number(a.ms ?? 0)
       // 一段话里可以夹【动作|参数】块：块先执行，剩下的才是台词
       const r = speakAgent(text, { state: a.state || 'idle', image })
@@ -516,7 +517,7 @@ function applyAction(msg) {
     }
     // 意图协议：整段文字（可夹【动作|参数】块），块执行、剩下的当台词
     case 'intent': {
-      const r = speakAgent(String(a.text ?? ''), { state: a.state || 'idle', image: a.image ? `/api/meme/${encodeURIComponent(String(a.image))}` : '' })
+      const r = speakAgent(String(a.text ?? ''), { state: a.state || 'idle', image: a.image ? `/api/meme/${encodeURIComponent(String(a.image))}?token=${encodeURIComponent(state.settings.token)}` : '' })
       state.busOwnUntil = Math.max(state.busOwnUntil || 0, performance.now() + Math.max(Number(a.ms) || 0, r.hold || 1200) + 400)
       if (Number(a.ms) > 0) setTimeout(() => { if (state.bubble?.text === r.text) state.bubble.hide() }, Number(a.ms))
       break
@@ -649,14 +650,14 @@ async function main() {
     state.caps = await fetch('/api/capabilities').then((r) => r.json())
     if (state.settings.profileMode === 'generic') {
       const { startGeneric } = await import('./generic.js')
-      await startGeneric(shell, state.settings, state.caps)
-      installBodyPort(shell)
+      const genericStage = await startGeneric(shell, state.settings, state.caps)
+      installBodyPort(shell, createConversationAdapter(genericStage, { mode: 'generic' }))
       return
     }
     // 先吃「改动补丁」：姿势/台词/反应/热区都能被覆盖，用户拿原模型也能复现我们的改动
     await applyStagePatch()
     await bootStage()
-    installBodyPort(shell)
+    installBodyPort(shell, createConversationAdapter(state.stage, { mode: 'deepseek' }))
     applyFps()
     // 实测帧率：每帧 +1，每秒结算一次（状态快照里能看到 cap 与 actual）
     let frames = 0

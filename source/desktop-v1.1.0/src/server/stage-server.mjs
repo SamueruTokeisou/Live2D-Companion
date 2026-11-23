@@ -10,6 +10,7 @@ import { createServer } from 'node:http'
 import { readFile, readdir, stat, appendFile, mkdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
+import { createControlToken, equalToken, isWithin, safeRealFile, trustedRequest, allowedRpc } from './control-security.mjs'
 import { grammarText, VERBS } from '../stage/agent/intent.js'
 
 const MIME = {
@@ -33,8 +34,9 @@ function safeDecode(s) {
 export async function createStageServer({
   root,
   model,
-  token = 'dev-token',
+  token = createControlToken(),
   verbose = false,
+  developmentRpc = false,
   host = '127.0.0.1',
   port = 0,
   integrationDir = path.join(homedir(), '.dsh', 'live2d'),
@@ -44,6 +46,8 @@ export async function createStageServer({
   // 转发给舞台窗口的 RPC（热区快照 / 反应表这些只在渲染层里活着）
   stageRpc = null,
 } = {}) {
+  if (host !== '127.0.0.1') throw new Error('Control service must bind 127.0.0.1')
+  if (typeof token !== 'string' || token.length < 32) throw new Error('Control token must contain at least 32 characters')
   if (!root) throw new Error('createStageServer 缺少 root')
   if (!model) throw new Error('createStageServer 缺少 model（model3.json 路径）')
   const MODEL = path.resolve(model)
@@ -223,15 +227,17 @@ export async function createStageServer({
   }
   const auth = (req) => {
     const t = req.headers['x-stage-token'] || (req.headers.authorization || '').replace(/^Bearer\s+/i, '')
-    return t === token
+    return equalToken(t, token)
   }
   async function body(req) {
     const chunks = []
-    for await (const c of req) chunks.push(c)
+    let bytes = 0
+    for await (const c of req) { bytes += c.length; if (bytes > 1024 * 1024) throw new Error('request too large'); chunks.push(c) }
     return chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {}
   }
-  async function serveFile(res, abs, extraHeaders = {}) {
+  async function serveFile(res, abs, extraHeaders = {}, boundary = root) {
     try {
+      if (!await safeRealFile(boundary, abs)) return false
       const st = await stat(abs)
       if (!st.isFile()) return false
       const buf = await readFile(abs)
@@ -246,16 +252,21 @@ export async function createStageServer({
 
   let server
   const handler = async (req, res) => {
+    if (!trustedRequest(req, server.address().port)) return json(res, 403, { error: 'untrusted request origin or host' })
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    res.setHeader('Referrer-Policy', 'no-referrer')
     let p = '/'
     try {
-      const url = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`)
+      const url = new URL(req.url, `http://127.0.0.1:${server.address().port}`)
       p = safeDecode(url.pathname)
     } catch {
       return json(res, 400, { error: 'bad url' })
     }
-    if (verbose) res.on('finish', () => console.log(`[req] ${res.statusCode} ${req.method} ${req.url}`))
+    if (verbose) res.on('finish', () => console.log(`[req] ${res.statusCode} ${req.method} ${p}`))
 
     try {
+      const imageAuth = p.startsWith('/api/meme/') && equalToken(new URL(req.url, 'http://127.0.0.1').searchParams.get('token'), token)
+      if (p.startsWith('/api/') && !['/api/version', '/api/capabilities', '/api/events'].includes(p) && !auth(req) && !imageAuth) return json(res, 401, { error: 'bad token' })
       if (p === '/api/version') return json(res, 200, { protocol: 1, stage: '0.1.0-dev' })
       if (p === '/api/capabilities') {
         const cap = await scan()
@@ -269,7 +280,7 @@ export async function createStageServer({
         })
       }
       // ---- 编辑台（浏览器 webUI）：动作库读写 + 舞台内部快照 ----
-      // 读不需要 token（页面本来就跑在本机回环上）；写要 token，token 由主进程在
+      // 读写均需要 token，token 由主进程在
       // 打开编辑台时拼进 URL（?token=…），页面再放进 x-stage-token 头。
       // 动作目录：舞台「现在真能执行」的名字（姿势/手势/动作/待机/表情 + 开关状态）。
       // 和 /api/actions 不同 —— 那个是编辑台存的动作库条目，这个是实时问渲染层。
@@ -297,6 +308,7 @@ export async function createStageServer({
       if (p.startsWith('/api/stage/') && req.method === 'POST') {
         if (!auth(req)) return json(res, 401, { error: 'bad token' })
         const op = p.slice('/api/stage/'.length)
+        if (!allowedRpc(op, developmentRpc)) return json(res, 403, { error: 'operation unavailable over HTTP' })
         try { return json(res, 200, (await stageRpc?.(op, await body(req))) || { ok: false, error: 'no stage' }) } catch (e) {
           return json(res, 500, { ok: false, error: String(e?.message || e) })
         }
@@ -317,7 +329,7 @@ export async function createStageServer({
       // SSE：动作、反馈、快照的实时通道。EventSource 不能带自定义头，token 走查询串。
       if (p === '/api/events' && req.method === 'GET') {
         const q = new URL(req.url, 'http://127.0.0.1').searchParams
-        if (q.get('token') !== token && !auth(req)) return json(res, 401, { error: 'bad token' })
+        if (!equalToken(q.get('token'), token) && !auth(req)) return json(res, 401, { error: 'bad token' })
         res.writeHead(200, {
           'content-type': 'text/event-stream; charset=utf-8',
           'cache-control': 'no-store',
@@ -368,7 +380,7 @@ export async function createStageServer({
         const name = p.slice('/api/meme/'.length)
         if (!/^meme-[A-Za-z0-9-]+\.(png|jpe?g|gif|webp)$/i.test(name)) return json(res, 400, { error: 'bad name' })
         const abs = path.join(integrationDir, name)
-        if (await serveFile(res, abs)) return
+        if (await serveFile(res, abs, {}, integrationDir)) return
         return json(res, 404, { error: 'not found' })
       }
 
@@ -379,8 +391,8 @@ export async function createStageServer({
           return json(res, 200, patchModel(cap))
         }
         const abs = path.join(MODEL_DIR, rel)
-        if (!abs.startsWith(MODEL_DIR)) return json(res, 403, { error: 'forbidden' })
-        if (await serveFile(res, abs)) return
+        if (!isWithin(MODEL_DIR, abs)) return json(res, 403, { error: 'forbidden' })
+        if (await serveFile(res, abs, {}, MODEL_DIR)) return
         return json(res, 404, { error: 'not found', rel })
       }
 
@@ -388,7 +400,7 @@ export async function createStageServer({
       if (p.startsWith('/vendor8/')) {
         const rel = p.slice('/vendor8/'.length)
         const abs = path.join(root, 'node_modules', rel)
-        if (!abs.startsWith(path.join(root, 'node_modules'))) return json(res, 403, { error: 'forbidden' })
+        if (!isWithin(path.join(root, 'node_modules'), abs)) return json(res, 403, { error: 'forbidden' })
         if (await serveFile(res, abs)) return
         return json(res, 404, { error: 'not found', rel })
       }
@@ -396,7 +408,7 @@ export async function createStageServer({
       if (p === '/' || p === '') { res.writeHead(302, { location: '/app/' }); return res.end() }
       const rel = p.endsWith('/') ? `${p}index.html` : p
       const abs = path.join(root, rel)
-      if (!abs.startsWith(root)) return json(res, 403, { error: 'forbidden' })
+      if (!isWithin(root, abs)) return json(res, 403, { error: 'forbidden' })
       if (await serveFile(res, abs)) return
       return json(res, 404, { error: 'not found', path: p })
     } catch (e) {
