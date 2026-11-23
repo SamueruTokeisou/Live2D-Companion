@@ -1,32 +1,21 @@
 # Agent maintenance guide
 
-Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENANCE.md before changing code. The repository owner makes product and release decisions; work autonomously within the requested task and verify concrete results.
+Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTURE.md and docs/public/MAINTENANCE.md before changing code. The repository owner makes product and release decisions; work autonomously within the requested scope and verify concrete results.
 
-- Explain progress in Chinese unless the user requests otherwise. The intended audience includes beginners with limited budgets.
-- Preserve source models. Imports must validate references and operate on independent local copies.
-- Never publish models, PSDs, textures, private runtime binaries, voice weights, credentials, local profiles or user logs. Respect .gitignore and run tools/check_publication.py before pushing.
-- Retain upstream license and attribution. Review licenses before copying external code; public availability does not imply MIT permission.
-- source/desktop-v1.1.0 contains the maintained engine changes. tools/setup.py lists deployment patches; update the list when changing a deployed file.
-- Do not switch the default runtime to Native Beta without evidence and a reproducible source/build path.
-- Keep baseline operation offline and cloud services optional. Do not change global Agent configuration, startup items or system security settings as a side effect.
-- Use tests appropriate to each change. UI, GPU, sleep/resume and long-running claims need actual observations, not just syntax checks or a surviving process.
-- Normal use must not open a debugging port. Temporary acceptance tooling uses 9237; restart normally when done.
-- Generic mode must only drive parameters that exist, within their runtime ranges. Model-specific behavior belongs in an explicit adapter.
-- Update public documentation with final behavior and limitations. Keep private machine handoff files out of Git.
-
-- Current product preference: prioritize one character. Multi-character co-stage is outside the current roadmap. External-project ideas are deferred research unless the user selects them for implementation.
-
-- Owner decision 2026-11-23: use ordinary AI conversation without added fixed personality, persona profiles, long-term memory, user profiling or automatic summaries. P4 controlled memory is deferred and removed as a prerequisite; retain only P3 in-process recent context. Do not reintroduce memory without an explicit owner request.
-- The active implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
-
-- Owner decision 2026-11-23: allow Chinese input, respond in Japanese with Japanese-only reply subtitles. GPT-SoVITS is the selected optional local voice route. Erio-style voice is a private reference direction, never a fixed persona. Do not publish recordings or claim voice similarity without listening evidence.
-
-- Superseding owner decision 2026-11-23: switch to Chinese replies, Chinese subtitles and Chinese speech. Current voice candidate is Ayaka's Chinese performance (XiaoN). Previous Erio audition was rejected for poor quality; keep speech disabled until the new audition is accepted. Voice identity must not inject character personality.
-
-- Owner listening decision 2026-11-23: Chinese voice audition A was preferred as more natural. Use A as the current trial voice; do not replace it with B based only on ASR. Chinese speech may now be enabled with the selected private reference.
-
-- Latest owner request 2026-11-23: A was unsatisfactory in actual Chinese dialogue; switch to Chinese audition B for another trial, with speech enabled. This is a trial, not final quality acceptance. Old Japanese references are retired; do not delete shared engine/base weights or Chinese A/B assets.
-
-- Voice curation preference: prioritize ordinary, steady reference speech without obvious interjections, laughter or sighs. Test the same target text and screen content errors before asking the owner to listen. This is reference synthesis, not model training; do not claim fillers are the proven sole cause of artifacts.
-
-- Current accepted voice: owner selected Chinese audition D (neutral reference) on 2026-11-23. Use D with Chinese replies/subtitles and speech enabled; supersedes A/B trials. Do not switch references automatically.
+- Explain progress in Chinese for a beginner with a limited budget. Prefer usable demonstrations and small complete changes over additional planning layers.
+- Current product direction (owner decision 2026-11-24): build a single-character AI virtual streamer with audience conversation, speech/body performance, singing and song requests, session/day memory and separate supporter/viewer profiles. The desktop pet remains a mode.
+- The authoritative roadmap is PROJECT_PLAN.md v2 R0–R6. Old P1–P8 documents are historical evidence, not the current execution order. Planning is not implementation.
+- Prioritize A01 local control security and A03/A04 streamer demonstration. Incomplete optional hardware coverage must not block a local demonstration; known control, data isolation and stop failures must block unattended public streaming.
+- Memory is now explicitly selected by the owner, superseding the prior deferral. Implement session memory before per-viewer long-term records. Key identities by platform/room/UID, preserve provenance/expiry/deletion, and separate payment entitlements from personal facts. Do not claim memory exists before implementation.
+- Keep desktop dialogue ordinary; streamer mode adds factual role, audience, program and capability context. Voice identity must not inject an anime persona. Do not grant operator permissions from audience text.
+- Current accepted voice is Chinese audition D. Keep Chinese replies/subtitles and the selected private reference; do not switch references automatically. Prefer steady references without obvious interjections/laughter. Reference synthesis is not model training.
+- Reuse mature code and protocols proactively when suitable. Check code, frontend, model and asset licenses separately; pin sources, retain attribution, and do not copy closed-source commercial code or assume public availability means MIT.
+- source/desktop-v1.1.0 remains the maintained engine source. Update tools/setup.py PATCHES for deployed files. Upstream/self-owned module separation is a migration target, not an already-completed fact.
+- Preserve source models. Imports validate references and use independent local copies. Generic mode only drives existing parameters within runtime ranges; model-specific behavior belongs in an explicit adapter.
+- Never publish models, PSDs, textures, private runtime binaries, voice weights/recordings, credentials, viewer profiles, payments or user logs. Respect .gitignore; run tools/check_publication.py before pushing. Private handoff files stay out of Git.
+- Preserve the pinned runtime until an alternative has evidence and a reproducible source/build path. Do not switch to Native Beta or claim a source-built release merely because a pack script exists.
+- Keep baseline desktop operation offline and cloud services optional. No global Agent, startup-item or system security changes as side effects. New paid usage, actual public streaming and publication need concrete applicable owner authorization.
+- Normal operation must not open a debugging port. Temporary acceptance tooling uses 9237 and must restart normally afterward.
+- Test according to the change. UI/audio/GPU/OBS/sleep/long-running claims require observations. Keep historical validation and current limitations accurate without letting unrelated future checks prevent current authorized work.
+- Do not train or run several heavy inference jobs simultaneously during a stream on the 8GB reference machine. Prepared singing audio and explicit worker start/stop are preferred early.
+- Do not automatically start subagents, public broadcasts, recurring automation or paid services merely because an external review recommends them.
