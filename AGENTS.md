@@ -22,3 +22,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Owner decision 2026-11-23: allow Chinese input, respond in Japanese with Japanese-only reply subtitles. GPT-SoVITS is the selected optional local voice route. Erio-style voice is a private reference direction, never a fixed persona. Do not publish recordings or claim voice similarity without listening evidence.
 
 - Superseding owner decision 2026-11-23: switch to Chinese replies, Chinese subtitles and Chinese speech. Current voice candidate is Ayaka's Chinese performance (XiaoN). Previous Erio audition was rejected for poor quality; keep speech disabled until the new audition is accepted. Voice identity must not inject character personality.
+
+- Owner listening decision 2026-11-23: Chinese voice audition A was preferred as more natural. Use A as the current trial voice; do not replace it with B based only on ASR. Chinese speech may now be enabled with the selected private reference.
