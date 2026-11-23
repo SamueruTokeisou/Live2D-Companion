@@ -3,9 +3,8 @@ import { createInterface } from 'node:readline'
 import { existsSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 
-export class ChatError extends Error {
-  constructor(code) { super(code); this.code = code }
-}
+import { ChatError } from './chat-errors.mjs'
+export { ChatError } from './chat-errors.mjs'
 export function findCodex(env = process.env) {
   const candidates = []
   if (env.LIVE2D_CODEX_PATH) {
