@@ -30,4 +30,3 @@ export function resolveRuntimePaths(app, options = {}) {
   return {home,authError:true}
  }
 }
-
