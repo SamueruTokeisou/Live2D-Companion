@@ -26,3 +26,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Owner listening decision 2026-11-23: Chinese voice audition A was preferred as more natural. Use A as the current trial voice; do not replace it with B based only on ASR. Chinese speech may now be enabled with the selected private reference.
 
 - Latest owner request 2026-11-23: A was unsatisfactory in actual Chinese dialogue; switch to Chinese audition B for another trial, with speech enabled. This is a trial, not final quality acceptance. Old Japanese references are retired; do not delete shared engine/base weights or Chinese A/B assets.
+
+- Voice curation preference: prioritize ordinary, steady reference speech without obvious interjections, laughter or sighs. Test the same target text and screen content errors before asking the owner to listen. This is reference synthesis, not model training; do not claim fillers are the proven sole cause of artifacts.
