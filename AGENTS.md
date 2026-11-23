@@ -24,3 +24,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Superseding owner decision 2026-11-23: switch to Chinese replies, Chinese subtitles and Chinese speech. Current voice candidate is Ayaka's Chinese performance (XiaoN). Previous Erio audition was rejected for poor quality; keep speech disabled until the new audition is accepted. Voice identity must not inject character personality.
 
 - Owner listening decision 2026-11-23: Chinese voice audition A was preferred as more natural. Use A as the current trial voice; do not replace it with B based only on ASR. Chinese speech may now be enabled with the selected private reference.
+
+- Latest owner request 2026-11-23: A was unsatisfactory in actual Chinese dialogue; switch to Chinese audition B for another trial, with speech enabled. This is a trial, not final quality acceptance. Old Japanese references are retired; do not delete shared engine/base weights or Chinese A/B assets.
