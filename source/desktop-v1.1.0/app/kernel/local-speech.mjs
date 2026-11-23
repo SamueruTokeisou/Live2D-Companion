@@ -17,18 +17,18 @@ export class LocalSpeech {
     if (typeof value !== 'boolean' || !existsSync(this.configFile)) throw Error('speech not configured')
     const config = JSON.parse(readFileSync(this.configFile, 'utf8')); config.enabled = value; writeSettings(this.configFile, config); this.error = null
   }
-  snapshot() { return { configured: existsSync(this.configFile), enabled: !!this.config(), lastError: this.error, engine: 'GPT-SoVITS', language: 'ja' } }
+  snapshot() { return { configured: existsSync(this.configFile), enabled: !!this.config(), lastError: this.error, engine: 'GPT-SoVITS', language: this.config()?.textLanguage === 'ja' ? 'ja' : 'zh' } }
   async speak(text, ctx) {
     const config = this.config(); if (!config) return false
     if (this.blocked) { this.error = '上一轮语音超时，本次进程已暂停语音。请重启语音服务和桌宠后再试。'; return false }
-    if (this.busy) { this.error = '上一轮语音仍在结束，本轮保留日文文字。'; return false }
+    if (this.busy) { this.error = '上一轮语音仍在结束，本轮保留文字回应。'; return false }
     this.busy = true; this.error = null
     const current = () => !ctx.signal.aborted && ctx.isCurrent()
     const timeout = AbortSignal.timeout(this.timeoutMs)
     try {
       const response = await this.fetch('http://127.0.0.1:9880/tts', { method: 'POST', redirect: 'error', signal: timeout,
-        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text.slice(0, 500), text_lang: 'ja', ref_audio_path: config.reference, prompt_text: config.promptText,
-          prompt_lang: 'ja', batch_size: 1, parallel_infer: false, text_split_method: 'cut5', streaming_mode: false, media_type: 'wav', seed: 42 }) })
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text.slice(0, 500), text_lang: config.textLanguage === 'ja' ? 'ja' : 'zh', ref_audio_path: config.reference, prompt_text: config.promptText,
+          prompt_lang: config.promptLanguage === 'ja' ? 'ja' : 'zh', batch_size: 1, parallel_infer: false, text_split_method: 'cut5', streaming_mode: false, media_type: 'wav', seed: 42 }) })
       if (!response.ok || !response.body) throw Error('speech unavailable')
       const reader = response.body.getReader(); const parts = []; let size = 0
       try {
@@ -52,7 +52,7 @@ export class LocalSpeech {
       return false
     } catch {
       if (timeout.aborted) this.blocked = true
-      if (current()) { this.error = '语音暂不可用，本轮保留日文文字。'; await ctx.command('audio-stop').catch(() => {}) }
+      if (current()) { this.error = '语音暂不可用，本轮保留文字回应。'; await ctx.command('audio-stop').catch(() => {}) }
       return false
     } finally { this.busy = false }
   }
