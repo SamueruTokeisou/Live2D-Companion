@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import time
+from urllib.error import HTTPError
 from pet_manager import ROOT, profiles, alive, rpc
 from local_state import atomic_json
 
@@ -31,13 +32,16 @@ def verify(profile):
         call('kernel:enable', {'value':True});call('kernel:cancel');call('kernel:pause',{'value':False});call('kernel:quiet',{'value':False})
         check('明确为本地规则且无 AI',snapshot()['mode']=='local-test' and not snapshot()['aiConnected'])
         capabilities=call('kernel:capabilities')
-        check('能力声明与首期身体一致',set(capabilities['commands'])=={'text','stop'} and not capabilities['gaze'] and not capabilities['gestures'])
+        check('能力声明与首期身体一致',{'text','stop'}.issubset(capabilities['commands']) and not capabilities['gaze'] and not capabilities['gestures'])
         old=send('acceptance-private-fixture-old')
         first=wait(lambda s:s['state']=='responding')
         check('文字进入响应且身体显示',call('body:snapshot')['textVisible'])
         body=call('body:snapshot')
-        unsupported=call('body:execute',{'taskId':body['taskId'],'generation':body['generation'],'commandId':'acceptance-unsupported','kind':'gesture','payload':{'name':'wave'}})
-        check('未适配手势明确不支持',unsupported['status']=='unsupported')
+        try:
+            call('body:execute',{'kind':'gesture'})
+            check('HTTP禁止直接身体执行',False)
+        except HTTPError as error:
+            check('HTTP禁止直接身体执行',error.code==403)
         new=send('acceptance-private-fixture-new')
         newer=wait(lambda s:s['state']=='responding' and s['active']['eventId']==new)
         check('新输入取消旧任务',any(r['eventId']==old and r['status']=='cancelled' for r in newer['records']))

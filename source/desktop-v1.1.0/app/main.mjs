@@ -20,6 +20,7 @@ import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
 import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
 import { visiblePosition } from './placement.mjs'
 import { readSettings, writeSettings } from './persistence.mjs'
+import { createControlToken } from '../src/server/control-security.mjs'
 import { createStageServer } from '../src/server/stage-server.mjs'
 
 // 控制台管道断开时（从终端/脚本启动后终端关闭）console.log 会抛 EPIPE，
@@ -437,7 +438,7 @@ let restarting = false
 // 启动阶段（引导窗口 / 压缩贴图 splash 关闭时）不该触发「窗口全关 → 退出」
 let bootGuard = true
 let srv = null
-let token = 'local-app'
+const token = createControlToken()
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) { app.quit() } else {
@@ -1239,7 +1240,7 @@ function updateStageThrottle() {
 /** 设置变了广播给所有窗口：覆盖层按新值立即生效，设置窗口刷新读数 */
 function broadcastSettings() {
   for (const w of BrowserWindow.getAllWindows()) {
-    if (!w.isDestroyed()) w.webContents.send('shell:changed', { ...settings })
+    if (!w.isDestroyed()) w.webContents.send('shell:changed', { ...settings, token, port: srv?.port || null })
   }
 }
 
