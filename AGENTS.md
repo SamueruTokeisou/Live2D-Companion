@@ -16,4 +16,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 
 - Current product preference: prioritize one character. Multi-character co-stage is outside the current roadmap. External-project ideas are deferred research unless the user selects them for implementation.
 
-- The implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P4 controlled memory, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
+- Owner decision 2026-11-23: use ordinary AI conversation without added fixed personality, persona profiles, long-term memory, user profiling or automatic summaries. P4 controlled memory is deferred and removed as a prerequisite; retain only P3 in-process recent context. Do not reintroduce memory without an explicit owner request.
+- The active implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
