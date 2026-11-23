@@ -13,7 +13,7 @@ export class EventKernel {
     this.timeoutMs = timeoutMs; this.batchMs = batchMs; this.maxQueue = maxQueue
     this.session = randomUUID(); this.sequence = 0; this.queue = []; this.timers = new Map()
     this.active = null; this.paused = false; this.quiet = false; this.closed = false
-    this.state = 'idle'; this.records = []; this.listeners = new Set(); this.pumpTimer = null
+    this.mode = 'local-test'; this.aiConnected = false; this.state = 'idle'; this.records = []; this.listeners = new Set(); this.pumpTimer = null
   }
   record(event, status, extra = {}) {
     const row = { at: this.clock.now(), eventId: event?.id ?? null, type: event?.type ?? null, source: event?.source ?? null, taskId: null, status, ...extra }
@@ -22,7 +22,7 @@ export class EventKernel {
     this.notify()
   }
   snapshot() {
-    return structuredClone({ mode: 'local-test', aiConnected: false, state: this.state, paused: this.paused, quiet: this.quiet,
+    return structuredClone({ mode: this.mode, aiConnected: this.aiConnected, state: this.state, paused: this.paused, quiet: this.quiet,
       active: this.active ? { taskId: this.active.id, eventId: this.active.event.id, type: this.active.event.type } : null,
       queue: this.queue.map(e => ({ id: e.id, type: e.type, count: e.ids.length })), timers: [...this.timers.keys()], records: this.records })
   }
@@ -86,7 +86,7 @@ export class EventKernel {
       const begun = await this.body.begin({ taskId: task.id, generation: task.generation })
       if (current() && (begun?.status !== 'accepted' || begun.taskId !== task.id)) throw new Error('body begin rejected')
       if (!current()) return
-      await this.handler(event, { signal: task.controller.signal, command, sleep: ms => this.sleep(ms, task.controller.signal), taskId: task.id })
+      await this.handler(event, { signal: task.controller.signal, isCurrent: current, command, sleep: ms => this.sleep(ms, task.controller.signal), taskId: task.id })
       if (current()) this.finish(task, 'completed')
     }).catch(() => { if (current()) this.finish(task, 'failed') })
   }
@@ -117,6 +117,7 @@ export class EventKernel {
       event.ids = event.ids.filter(id => !removed.includes(id)); if (event.ids.length) event.id = event.ids[0]; return event.ids.length > 0
     })
     if (this.active && (!eventId || this.active.event.ids.includes(eventId))) this.cancelActive()
+    if (!this.active && this.state === 'error') this.setState(this.paused ? 'paused' : 'idle')
     this.notify(); this.pump()
   }
   pause(value = true) {
