@@ -5,15 +5,16 @@
 //   - 窗口尺寸 A 与模型尺寸 B 分离：A 改窗口大小，B 只改模型缩放（渲染层 zoom），互不牵连
 //   - 穿透模式：win.setIgnoreMouseEvents(true, { forward: true })，用全局快捷键 Ctrl+Alt+L 找回
 //   - 退出：Ctrl+Alt+Q（穿透态下也能用）
-import { app, BrowserWindow, ipcMain, globalShortcut, shell, screen, dialog, Menu, Tray, nativeImage, nativeTheme, net, powerMonitor } from 'electron'
+import { app, BrowserWindow, ipcMain, globalShortcut, shell, screen, dialog, Menu, Tray, nativeImage, nativeTheme, net, powerMonitor, safeStorage } from 'electron'
 import path from 'node:path'
 import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
-import { CodexProvider } from './kernel/codex-provider.mjs'
-import { ChatRuntime } from './kernel/chat-runtime.mjs'
+import { ChatGptAuth, ProtectedAccountStore } from './kernel/chatgpt-auth.mjs'
+import { ChatGptProvider } from './kernel/chatgpt-provider.mjs'
+import { ChatRuntime, CHAT_ERRORS } from './kernel/chat-runtime.mjs'
 import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
 import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
 import { visiblePosition } from './placement.mjs'
@@ -481,23 +482,27 @@ function disableKernel(expectedMode = null) {
   kernelEnabled = false
   if (companionKernel) { companionKernel.cancel(); companionKernel.pause(true) }
 }
+let chatAuth = null
 function getChat() {
-  if (!chatRuntime) chatRuntime = new ChatRuntime({ kernel: getKernel(), provider: new CodexProvider({ cwd: path.join(app.getPath('userData'), 'chat-empty') }) })
+  if (!chatRuntime) {
+    chatAuth = new ChatGptAuth({ store: new ProtectedAccountStore(process.env.STAGE_COMPANION_AUTH_HOME || path.join(app.getPath('userData'), 'chatgpt-auth'), safeStorage), openExternal: url => shell.openExternal(url) })
+    chatRuntime = new ChatRuntime({ kernel: getKernel(), provider: new ChatGptProvider({ auth: chatAuth }) })
+  }
   return chatRuntime
 }
 function selectKernelMode(mode) {
   const kernel = getKernel()
   if (kernelMode !== mode) disableKernel()
   kernelMode = mode; kernel.mode = mode
-  kernel.handler = mode === 'codex-chat' ? (event, ctx) => getChat().handle(event, ctx) : localHandler
-  kernel.timeoutMs = mode === 'codex-chat' ? 60000 : 8000
-  kernel.aiConnected = mode === 'codex-chat' && !!chatRuntime?.verified
+  kernel.handler = mode === 'chatgpt-plan' ? (event, ctx) => getChat().handle(event, ctx) : localHandler
+  kernel.timeoutMs = mode === 'chatgpt-plan' ? 60000 : 8000
+  kernel.aiConnected = mode === 'chatgpt-plan' && !!chatRuntime?.verified
   kernelEnabled = true; kernel.pause(false)
 }
 function openChatPanel() {
   childWins.get('kernel')?.close()
-  const panel = openChild('chat', { file: 'chat-panel.html', width: 750, height: 780, minWidth: 560, minHeight: 580, title: '伙伴文字对话 · Codex' })
-  panel.once('closed', () => disableKernel('codex-chat'))
+  const panel = openChild('chat', { file: 'chat-panel.html', width: 750, height: 780, minWidth: 560, minHeight: 580, title: '伙伴文字对话 · ChatGPT' })
+  panel.once('closed', () => disableKernel('chatgpt-plan'))
 }
 function openKernelPanel() {
   childWins.get('chat')?.close()
@@ -511,16 +516,24 @@ async function callStageRpc(op, payload) {
       const chat = getChat(), command = op.slice(5), kernel = getKernel()
       if (command === 'enable') {
         if (typeof payload?.value !== 'boolean') throw new Error('invalid switch')
-        if (payload.value) selectKernelMode('codex-chat'); else disableKernel('codex-chat')
-      } else if (command !== 'snapshot') {
-        if (!kernelEnabled || kernelMode !== 'codex-chat') return { ok: false, error: '请先开启文字对话。' }
-        if (command === 'send') chat.send(payload?.text)
+        if (payload.value) selectKernelMode('chatgpt-plan'); else disableKernel('chatgpt-plan')
+      } else if (command === 'login') { chat.resetIdentity(); chat.provider.clearModels(); await chatAuth.start({ newAccount: payload?.newAccount === true }) }
+      else if (command === 'cancel-login') chatAuth.cancel()
+      else if (command === 'account') { chat.resetIdentity(); chat.provider.clearModels(); chatAuth.select(payload?.id) }
+      else if (command === 'logout') { chat.resetIdentity(); chat.provider.clearModels(); await chatAuth.signOut() }
+      else if (command === 'ack') { chatAuth.acknowledge(); await chat.provider.loadModels() }
+      else if (command === 'models') await chat.provider.loadModels()
+      else if (command === 'model') { chat.resetIdentity(); chat.provider.select(payload?.model) }
+      else if (command === 'manage-usage') await shell.openExternal('https://chatgpt.com/settings/usage')
+      else if (command !== 'snapshot') {
+        if (!kernelEnabled || kernelMode !== 'chatgpt-plan') return { ok: false, error: '请先开启文字对话。' }
+        if (command === 'send') { await chatAuth.token(); chat.send(payload?.text) }
         else if (command === 'stop') kernel.cancel()
         else if (command === 'clear') chat.clear()
         else return { ok: false, error: '不支持的对话操作。' }
       }
-      return { ok: true, value: { ...chat.snapshot(), enabled: kernelEnabled && kernelMode === 'codex-chat', state: kernel.state, queued: kernel.queue.length } }
-    } catch { return { ok: false, error: '对话操作未完成，请检查输入长度或舞台状态。' } }
+      return { ok: true, value: { ...chat.snapshot(), auth: chatAuth.snapshot(), models: chat.provider.models, selectedModel: chat.provider.model, enabled: kernelEnabled && kernelMode === 'chatgpt-plan', state: kernel.state, queued: kernel.queue.length } }
+    } catch (error) { return { ok: false, error: CHAT_ERRORS[error.code] || '对话操作未完成，请检查输入或重新登录。' } }
   }
   if (op === 'local:kernel') { openKernelPanel(); return { ok: true } }
   if (String(op).startsWith('kernel:')) {
@@ -1485,6 +1498,7 @@ app.whenReady().then(async () => {
   // 顺手同步落一次配置 —— 异步写不保证在进程退出前完成，会把 settings.json 留成 0 字节。
   app.on('before-quit', () => {
     companionKernel?.close()
+    chatAuth?.cancel()
     try { tray?.destroy?.(); tray = null } catch {}
     saveSettingsSync()
   })

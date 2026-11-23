@@ -96,7 +96,7 @@ def _start(profile, debug=False):
     # Validate/recover before launching; never let the stage silently reset bad settings.
     read_config(data_dir(profile) / 'settings.json')
     _stop_all()
-    env = os.environ.copy(); env['STAGE_HOME'] = str(data_dir(profile))
+    env = os.environ.copy(); env['STAGE_HOME'] = str(data_dir(profile)); env['STAGE_COMPANION_AUTH_HOME'] = str(ROOT / 'data/chatgpt-auth')
     env['STAGE_MANAGER_PYTHON'] = str(Path(sys.executable).with_name('pythonw.exe'))
     env['STAGE_MANAGER_FILE'] = str(Path(__file__).resolve())
     env.pop('ELECTRON_RUN_AS_NODE', None)
