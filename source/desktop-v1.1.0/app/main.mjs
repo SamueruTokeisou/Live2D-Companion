@@ -13,6 +13,7 @@ import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { ChatGptAuth, ProtectedAccountStore } from './kernel/chatgpt-auth.mjs'
+import { LocalSpeech } from './kernel/local-speech.mjs'
 import { ChatGptProvider } from './kernel/chatgpt-provider.mjs'
 import { ChatRuntime, CHAT_ERRORS } from './kernel/chat-runtime.mjs'
 import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
@@ -486,7 +487,12 @@ let chatAuth = null
 function getChat() {
   if (!chatRuntime) {
     chatAuth = new ChatGptAuth({ store: new ProtectedAccountStore(process.env.STAGE_COMPANION_AUTH_HOME || path.join(app.getPath('userData'), 'chatgpt-auth'), safeStorage), openExternal: url => shell.openExternal(url) })
-    chatRuntime = new ChatRuntime({ kernel: getKernel(), provider: new ChatGptProvider({ auth: chatAuth }) })
+    const sharedData = path.dirname(process.env.STAGE_COMPANION_AUTH_HOME || path.join(app.getPath('userData'), 'chatgpt-auth'))
+    chatRuntime = new ChatRuntime({
+      kernel: getKernel(), provider: new ChatGptProvider({ auth: chatAuth }),
+      speech: new LocalSpeech({ configFile: path.join(sharedData, 'voice-reference', 'active.json') }),
+      speechState: async () => (await callStageRpc('body:snapshot')).value,
+    })
   }
   return chatRuntime
 }
@@ -495,7 +501,7 @@ function selectKernelMode(mode) {
   if (kernelMode !== mode) disableKernel()
   kernelMode = mode; kernel.mode = mode
   kernel.handler = mode === 'chatgpt-plan' ? (event, ctx) => getChat().handle(event, ctx) : localHandler
-  kernel.timeoutMs = mode === 'chatgpt-plan' ? 60000 : 8000
+  kernel.timeoutMs = mode === 'chatgpt-plan' ? 120000 : 8000
   kernel.aiConnected = mode === 'chatgpt-plan' && !!chatRuntime?.verified
   kernelEnabled = true; kernel.pause(false)
 }
@@ -524,6 +530,7 @@ async function callStageRpc(op, payload) {
       else if (command === 'ack') { chatAuth.acknowledge(); await chat.provider.loadModels() }
       else if (command === 'models') await chat.provider.loadModels()
       else if (command === 'model') { chat.resetIdentity(); chat.provider.select(payload?.model) }
+      else if (command === 'voice') { if (payload?.value === false) kernel.cancel(); chat.speech.setEnabled(payload?.value) }
       else if (command === 'manage-usage') await shell.openExternal('https://chatgpt.com/settings/usage')
       else if (command !== 'snapshot') {
         if (!kernelEnabled || kernelMode !== 'chatgpt-plan') return { ok: false, error: '请先开启文字对话。' }
@@ -728,7 +735,7 @@ async function createWindow() {
     backgroundColor: '#00000000',
     icon: path.join(ROOT, 'assets', 'app.ico'),
     show: false,
-    webPreferences: {
+    webPreferences: { autoplayPolicy: 'no-user-gesture-required',
       preload: path.join(ROOT, 'app', 'preload.cjs'),
       // 原生 core 模式：关 contextIsolation 让 preload 能把安装器挂进页面世界
       contextIsolation: !useNative,
@@ -1199,7 +1206,7 @@ function openChild(key, { file, ...opts }) {
     // 窗口底色跟主题一致，避免浅色主题下开窗先闪一下深色
     backgroundColor: (settings.theme === 'light' || (settings.theme !== 'dark' && !nativeTheme.shouldUseDarkColors))
       ? '#eef1f6' : '#0f131b',
-    ...opts,    webPreferences: {
+    ...opts,    webPreferences: { autoplayPolicy: 'no-user-gesture-required',
       preload: path.join(ROOT, 'app', 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,

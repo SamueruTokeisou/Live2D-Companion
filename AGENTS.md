@@ -18,3 +18,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 
 - Owner decision 2026-11-23: use ordinary AI conversation without added fixed personality, persona profiles, long-term memory, user profiling or automatic summaries. P4 controlled memory is deferred and removed as a prerequisite; retain only P3 in-process recent context. Do not reintroduce memory without an explicit owner request.
 - The active implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
+
+- Owner decision 2026-11-23: allow Chinese input, respond in Japanese with Japanese-only reply subtitles. GPT-SoVITS is the selected optional local voice route. Erio-style voice is a private reference direction, never a fixed persona. Do not publish recordings or claim voice similarity without listening evidence.

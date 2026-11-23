@@ -1,12 +1,12 @@
 /** A body owns its own rendering; no model parameter IDs enter the kernel. */
 export class BodySession {
-  constructor({ showText, clearText, capabilities = ['text', 'stop'] }) {
-    this.showText = showText; this.clearText = clearText; this.capabilities = capabilities
+  constructor({ showText, clearText, playAudio = null, stopAudio = () => {}, capabilities = ['text', 'stop'] }) {
+    this.showText = showText; this.clearText = clearText; this.playAudio = playAudio; this.stopAudio = stopAudio; this.capabilities = capabilities
     this.generation = 0; this.taskId = null; this.closed = true; this.seen = new Set()
   }
   begin({ taskId, generation }) {
     if (typeof taskId !== 'string' || !Number.isSafeInteger(generation) || generation <= this.generation) return { status: 'cancelled', taskId }
-    this.clearText(); this.generation = generation; this.taskId = taskId; this.closed = false; this.seen.clear()
+    this.stopAudio(); this.clearText(); this.generation = generation; this.taskId = taskId; this.closed = false; this.seen.clear()
     return { status: 'accepted', taskId }
   }
   execute(command) {
@@ -16,6 +16,15 @@ export class BodySession {
     if (typeof commandId !== 'string' || this.seen.has(commandId)) return receipt('cancelled')
     if (!this.capabilities.includes(kind)) return receipt('unsupported')
     if (kind === 'stop') { this.seen.add(commandId); const stopped = this.stop({ taskId, generation }); return receipt(stopped.status) }
+    if (kind === 'audio-stop') { this.stopAudio(); this.seen.add(commandId); return receipt('completed') }
+    if (kind === 'audio') {
+      if (!this.playAudio || typeof payload?.wav !== 'string' || payload.wav.length > 12 * 2**20 || !Number.isFinite(payload.volume) || payload.volume < 0 || payload.volume > 1) return receipt('failed')
+      this.seen.add(commandId)
+      return Promise.resolve().then(() => {
+        if (this.closed || generation !== this.generation || taskId !== this.taskId) return receipt('cancelled')
+        return this.playAudio(payload.wav, payload.volume, () => !this.closed && generation === this.generation && taskId === this.taskId).then(() => receipt(this.closed || generation !== this.generation ? 'cancelled' : 'completed'))
+      }).catch(() => receipt('failed'))
+    }
     if (kind === 'text') {
       if (typeof payload?.text !== 'string' || !payload.text.trim() || payload.text.length > 600 || !Number.isFinite(payload.durationMs) || payload.durationMs < 100 || payload.durationMs > 10000) return receipt('failed')
       this.seen.add(commandId)
@@ -27,22 +36,34 @@ export class BodySession {
   stop({ taskId, generation }) {
     if (generation < this.generation || (generation === this.generation && this.taskId !== null && taskId !== this.taskId)) return { status: 'cancelled', taskId }
     if (!Number.isSafeInteger(generation)) return { status: 'failed', taskId }
-    this.generation = generation; this.taskId = taskId; this.closed = true; this.clearText()
+    this.generation = generation; this.taskId = taskId; this.closed = true; this.stopAudio(); this.clearText()
     return { status: 'completed', taskId }
   }
 }
 
 /** Separate overlay: stopping a kernel task never clears manual clothes/expressions. */
 export function installBodyPort(shell = window.shell) {
-  let overlay = null, timer = null
+  let overlay = null, timer = null, audio = null, audioUrl = null, audioState = 'idle', audioEpoch = 0
+  const stopAudio = () => { audioEpoch++; if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); audio = null } if (audioUrl) URL.revokeObjectURL(audioUrl); audioUrl = null; audioState = 'idle' }
+  const playAudio = async (wav, volume, current) => {
+    stopAudio(); const epoch = audioEpoch
+    const bytes = Uint8Array.from(atob(wav), c => c.charCodeAt(0))
+    audioUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }))
+    const player = new Audio(audioUrl); audio = player; player.volume = volume; audioState = 'starting'
+    player.onended = () => { if (epoch === audioEpoch) { audioState = 'ended'; URL.revokeObjectURL(audioUrl); audioUrl = null } }
+    player.onerror = () => { if (epoch === audioEpoch) audioState = 'error' }
+    await player.play()
+    if (epoch !== audioEpoch || !current()) { player.pause(); return }
+    audioState = 'playing'
+  }
   const clearText = () => { clearTimeout(timer); timer = null; if (overlay) { overlay.remove(); overlay = null } }
-  const port = new BodySession({ clearText, showText(text, durationMs) {
+  const port = new BodySession({ clearText, playAudio, stopAudio, capabilities: ['text', 'audio', 'audio-stop', 'stop'], showText(text, durationMs) {
     clearText(); overlay = document.createElement('div'); overlay.id = 'companion-kernel-text'; overlay.textContent = text
     Object.assign(overlay.style, { position: 'fixed', top: '12px', left: '8px', right: '8px', zIndex: '100', padding: '12px', borderRadius: '16px', background: '#f5fbffff', color: '#173449', border: '1px solid #65add3', font: '16px Microsoft YaHei UI', pointerEvents: 'none', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' })
     document.body.append(overlay); timer = setTimeout(clearText, durationMs)
   } })
   window.__companionBody = (op, payload) => {
-    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay }
+    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay, audioState }
     if (op === 'capabilities') return { protocol: 1, commands: [...port.capabilities], emotion: [], gaze: false, gestures: [] }
     if (op === 'begin') return port.begin(payload)
     if (op === 'execute') return port.execute(payload)
@@ -52,6 +73,6 @@ export function installBodyPort(shell = window.shell) {
   document.querySelector('#stage')?.addEventListener('pointerdown', event => {
     if (event.button === 0) shell?.kernelClick?.()
   })
-  window.addEventListener('pagehide', clearText, { once: true })
+  window.addEventListener('pagehide', () => { stopAudio(); clearText() }, { once: true })
   return port
 }
