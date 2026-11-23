@@ -232,7 +232,7 @@ class Manager(tk.Tk):
                                ('桌宠设置', self.settings), ('退出桌宠', lambda: self.work(stop_all, '桌宠已退出'))]:
             btn = ttk.Button(buttons, text=label, command=command); btn.pack(side='left', padx=(0, 8)); self.buttons.append(btn)
         more = ttk.Frame(frame); more.pack(fill='x', pady=8)
-        for label, command in [('导入新角色…', self.import_dialog), ('打开角色文件夹', self.open_model), ('使用说明', self.help), ('内核测试', self.kernel)]:
+        for label, command in [('导入新角色…', self.import_dialog), ('打开角色文件夹', self.open_model), ('使用说明', self.help), ('内核测试', self.kernel), ('文字对话', self.chat)]:
             btn = ttk.Button(more, text=label, command=command); btn.pack(side='left', padx=(0, 8)); self.buttons.append(btn)
         ttk.Separator(frame).pack(fill='x', pady=15)
         ttk.Label(frame, text='操作：左键互动；中键 / 右键拖动；Shift+滚轮缩放。\n找不到角色：Ctrl+Alt+L 解除穿透；Ctrl+Alt+Q 退出。\n关闭本窗口不会退出桌宠。', wraplength=580).pack(anchor='w')
@@ -307,6 +307,11 @@ class Manager(tk.Tk):
         p = self.selected()
         if not alive(p): messagebox.showinfo('先启动角色', '请先点击“启动 / 切换”。', parent=self); return
         self.work(lambda: rpc(p, 'local:settings'), '已打开桌宠设置')
+    def chat(self):
+        p = self.selected()
+        if not alive(p):
+            messagebox.showinfo('先启动角色', '请先点击“启动 / 切换”。', parent=self); return
+        self.work(lambda: rpc(p, 'local:chat'), '已打开文字对话；按需使用已有 Codex 登录。')
     def kernel(self):
         p = self.selected()
         if not alive(p):

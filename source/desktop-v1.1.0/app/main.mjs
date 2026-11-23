@@ -12,7 +12,9 @@ import { fileURLToPath } from 'node:url'
 import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
-import { EventKernel } from './kernel/event-kernel.mjs'
+import { CodexProvider } from './kernel/codex-provider.mjs'
+import { ChatRuntime } from './kernel/chat-runtime.mjs'
+import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
 import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
 import { visiblePosition } from './placement.mjs'
 import { readSettings, writeSettings } from './persistence.mjs'
@@ -462,6 +464,8 @@ app.whenReady().then(() => {
 })
 let companionKernel = null
 let kernelEnabled = false
+let kernelMode = 'local-test'
+let chatRuntime = null
 function getKernel() {
   if (!companionKernel) companionKernel = new EventKernel({ body: new StageBodyAdapter(callStageRpc), journal: row => {
     const file = path.join(LOG_DIR, 'kernel-events.jsonl')
@@ -472,15 +476,52 @@ function getKernel() {
   } })
   return companionKernel
 }
-function disableKernel() {
+function disableKernel(expectedMode = null) {
+  if (expectedMode && expectedMode !== kernelMode) return
   kernelEnabled = false
   if (companionKernel) { companionKernel.cancel(); companionKernel.pause(true) }
 }
+function getChat() {
+  if (!chatRuntime) chatRuntime = new ChatRuntime({ kernel: getKernel(), provider: new CodexProvider({ cwd: path.join(app.getPath('userData'), 'chat-empty') }) })
+  return chatRuntime
+}
+function selectKernelMode(mode) {
+  const kernel = getKernel()
+  if (kernelMode !== mode) disableKernel()
+  kernelMode = mode; kernel.mode = mode
+  kernel.handler = mode === 'codex-chat' ? (event, ctx) => getChat().handle(event, ctx) : localHandler
+  kernel.timeoutMs = mode === 'codex-chat' ? 60000 : 8000
+  kernel.aiConnected = mode === 'codex-chat' && !!chatRuntime?.verified
+  kernelEnabled = true; kernel.pause(false)
+}
+function openChatPanel() {
+  childWins.get('kernel')?.close()
+  const panel = openChild('chat', { file: 'chat-panel.html', width: 750, height: 780, minWidth: 560, minHeight: 580, title: '伙伴文字对话 · Codex' })
+  panel.once('closed', () => disableKernel('codex-chat'))
+}
 function openKernelPanel() {
+  childWins.get('chat')?.close()
   const panel = openChild('kernel', { file: 'kernel-panel.html', width: 740, height: 720, minWidth: 560, minHeight: 530, title: '伙伴内核 · 本地测试' })
-  panel.once('closed', disableKernel)
+  panel.once('closed', () => disableKernel('local-test'))
 }
 async function callStageRpc(op, payload) {
+  if (op === 'local:chat') { openChatPanel(); return { ok: true } }
+  if (String(op).startsWith('chat:')) {
+    try {
+      const chat = getChat(), command = op.slice(5), kernel = getKernel()
+      if (command === 'enable') {
+        if (typeof payload?.value !== 'boolean') throw new Error('invalid switch')
+        if (payload.value) selectKernelMode('codex-chat'); else disableKernel('codex-chat')
+      } else if (command !== 'snapshot') {
+        if (!kernelEnabled || kernelMode !== 'codex-chat') return { ok: false, error: '请先开启文字对话。' }
+        if (command === 'send') chat.send(payload?.text)
+        else if (command === 'stop') kernel.cancel()
+        else if (command === 'clear') chat.clear()
+        else return { ok: false, error: '不支持的对话操作。' }
+      }
+      return { ok: true, value: { ...chat.snapshot(), enabled: kernelEnabled && kernelMode === 'codex-chat', state: kernel.state, queued: kernel.queue.length } }
+    } catch { return { ok: false, error: '对话操作未完成，请检查输入长度或舞台状态。' } }
+  }
   if (op === 'local:kernel') { openKernelPanel(); return { ok: true } }
   if (String(op).startsWith('kernel:')) {
     try {
@@ -489,9 +530,9 @@ async function callStageRpc(op, payload) {
       if (command === 'snapshot') return { ok: true, value: { ...kernel.snapshot(), enabled: kernelEnabled } }
       if (command === 'enable') {
         if (typeof payload?.value !== 'boolean') throw new Error('开关值无效')
-        if (payload.value) { kernelEnabled = true; kernel.pause(false) } else disableKernel()
+        if (payload.value) selectKernelMode('local-test'); else disableKernel('local-test')
       } else {
-        if (!kernelEnabled) throw new Error('请先打开内核测试窗口')
+        if (!kernelEnabled || kernelMode !== 'local-test') throw new Error('请先打开内核测试窗口')
         if (command === 'event') {
           const id = kernel.enqueue(payload?.type, { text: payload?.text })
           if (kernel.records.some(r => r.eventId === id && r.status === 'rejected')) return { ok: false, error: '队列已满，请先处理或清空待办。' }
@@ -1225,7 +1266,7 @@ function wireIpc() {
   })
   ipcMain.handle('actions:load', () => readActionsFile())
   ipcMain.on('kernel:click', (event) => {
-    if (kernelEnabled && win && event.sender.id === win.webContents.id) getKernel().enqueue('click')
+    if (kernelEnabled && kernelMode === 'local-test' && win && event.sender.id === win.webContents.id) getKernel().enqueue('click')
   })
   ipcMain.on('shell:editor', () => openEditorPage())
   ipcMain.on('shell:settings', () => openChild('settings', {

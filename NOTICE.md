@@ -19,3 +19,7 @@
 ## 调研来源
 
 [WHALEL2D](https://github.com/Ssssshaiiko/WHALEL2D)、[DeepFish](https://github.com/Rockau/DeepFish-desktop-pet)、[DeepFish-voice](https://github.com/ICEAXEMAN/DeepFish-voice)、[AIRI](https://github.com/moeru-ai/airi)、[Open-LLM-VTuber](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber) 用于功能与设计比较。没有因为仓库公开就将其代码视作 MIT；当前未引入 DeepFish 系列的非商业许可代码或语音素材。
+
+## 可选对话后端
+
+文字对话通过官方 Codex App Server 协议调用用户自行安装的 Codex CLI；不在本仓库分发 CLI 二进制、认证文件或令牌。CLI 和云端服务使用各自许可与服务规则，不由本仓库 MIT 许可覆盖。

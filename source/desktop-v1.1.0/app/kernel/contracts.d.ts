@@ -22,3 +22,9 @@ export interface BodyAdapter {
   execute(command: BodyCommand, signal?: AbortSignal): BodyReceipt | Promise<BodyReceipt>;
   stop(task: Task): BodyReceipt | Promise<BodyReceipt>;
 }
+export interface ChatMessage { role: 'user' | 'assistant'; content: string }
+export interface TextUsage { inputTokens: number; outputTokens: number; totalTokens: number | null }
+export interface TextResult { text: string; model: string; usage: TextUsage | null; limited: boolean; provider: string }
+export interface TextProvider {
+  stream(request: { messages: ChatMessage[]; signal: AbortSignal; onDelta: (cumulativeText: string) => void }): Promise<TextResult>;
+}

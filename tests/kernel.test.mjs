@@ -171,3 +171,9 @@ test('expired task cannot emit before a delayed timeout callback is delivered',a
   c.time=2000;release();await flush();assert.deepEqual(shown,[])
   await c.advance(0);assert.ok(result(k,id).includes('timeout'))
 })
+
+test('clearing stopped work also clears an error state without resuming a task',async()=>{
+  const {kernel:k,clock:c}=fixture(async()=>{throw Error('fixture')})
+  k.enqueue('text',{text:'failure'});await c.advance(0);assert.equal(k.state,'error')
+  k.cancel();assert.equal(k.state,'idle');assert.equal(k.active,null)
+})
