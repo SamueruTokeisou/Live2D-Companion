@@ -5,7 +5,7 @@ import { BodySession } from '../source/desktop-v1.1.0/app/kernel/body-port.mjs'
 
 function speech(fetchImpl) {
   const instance = new LocalSpeech({ configFile: '', fetchImpl })
-  instance.config = () => ({ reference: 'test-fixture', promptText: 'reference text', volume: 0 })
+  instance.config = () => ({ reference: 'test-fixture', promptText: 'reference text', volume: 0, textLanguage: 'zh', promptLanguage: 'zh' })
   return instance
 }
 const wav = Buffer.from('RIFF0000WAVEtest-fixture')
@@ -15,7 +15,7 @@ function context() {
     command: async (kind, payload) => { commands.push({ kind, payload }); return { status: 'completed' } },
     speechState: async () => ({ taskId: 'task', closed: false, audioState: 'ended' }), sleep: async () => {} }
 }
-test('local Japanese speech waits for observed playback end', async () => {
+test('local Chinese speech waits for observed playback end', async () => {
   let request
   const instance = speech(async (url, init) => { request = { url, ...init }; return new Response(wav) })
   const ctx = context()
@@ -23,7 +23,7 @@ test('local Japanese speech waits for observed playback end', async () => {
   assert.equal(request.url, 'http://127.0.0.1:9880/tts')
   assert.equal(request.redirect, 'error')
   const body = JSON.parse(request.body)
-  assert.equal(body.text_lang, 'ja'); assert.equal(body.prompt_lang, 'ja'); assert.equal(body.batch_size, 1)
+  assert.equal(body.text_lang, 'zh'); assert.equal(body.prompt_lang, 'zh'); assert.equal(body.batch_size, 1)
   assert.equal(ctx.commands[0].kind, 'audio'); assert.equal(ctx.commands[0].payload.volume, 0)
   assert.doesNotMatch(JSON.stringify(instance.snapshot()), /test-fixture|reference text/)
 })

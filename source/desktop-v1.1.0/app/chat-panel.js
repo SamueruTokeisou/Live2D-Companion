@@ -11,7 +11,7 @@ async function call(op, payload) {
 function render(s) {
   enabled = s.enabled
   voiceEnabled = !!s.speech?.enabled; $('voice').disabled = !s.speech?.configured
-  $('voice').textContent = !s.speech?.configured ? '声音准备中' : voiceEnabled ? '关闭日语朗读' : '开启日语朗读'
+  $('voice').textContent = !s.speech?.configured ? '声音准备中' : voiceEnabled ? '关闭中文朗读' : '开启中文朗读'
   $('status').textContent = `${enabled ? states[s.state] : '文字对话已关闭'} · ${s.verified ? '真实后端已验证' : '真实后端尚未验证'}${s.model ? ' · ' + s.model : ''}`
   $('toggle').textContent = enabled ? '关闭对话' : '开启对话'
   const auth = s.auth || {}, ready = enabled && auth.signedIn && auth.planEnabled && !auth.needsWelcome && !auth.pending

@@ -20,3 +20,13 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - The active implementation order is P1 runtime foundation, P2 event kernel, P3 text conversation, P5 voice, P6 body workbench, P7 companion features, P8 release. Phase gates in PROJECT_PLAN.md are authoritative. Do not treat the plan as completed implementation.
 
 - Owner decision 2026-11-23: allow Chinese input, respond in Japanese with Japanese-only reply subtitles. GPT-SoVITS is the selected optional local voice route. Erio-style voice is a private reference direction, never a fixed persona. Do not publish recordings or claim voice similarity without listening evidence.
+
+- Superseding owner decision 2026-11-23: switch to Chinese replies, Chinese subtitles and Chinese speech. Current voice candidate is Ayaka's Chinese performance (XiaoN). Previous Erio audition was rejected for poor quality; keep speech disabled until the new audition is accepted. Voice identity must not inject character personality.
+
+- Owner listening decision 2026-11-23: Chinese voice audition A was preferred as more natural. Use A as the current trial voice; do not replace it with B based only on ASR. Chinese speech may now be enabled with the selected private reference.
+
+- Latest owner request 2026-11-23: A was unsatisfactory in actual Chinese dialogue; switch to Chinese audition B for another trial, with speech enabled. This is a trial, not final quality acceptance. Old Japanese references are retired; do not delete shared engine/base weights or Chinese A/B assets.
+
+- Voice curation preference: prioritize ordinary, steady reference speech without obvious interjections, laughter or sighs. Test the same target text and screen content errors before asking the owner to listen. This is reference synthesis, not model training; do not claim fillers are the proven sole cause of artifacts.
+
+- Current accepted voice: owner selected Chinese audition D (neutral reference) on 2026-11-23. Use D with Chinese replies/subtitles and speech enabled; supersedes A/B trials. Do not switch references automatically.
