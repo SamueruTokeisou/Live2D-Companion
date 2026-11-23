@@ -12,6 +12,7 @@ export const CHAT_ERRORS = {
   output_limit: '达到本地500字符上限，已停止；本轮未完成。',
   account_changed: '账号已切换，本轮已停止。',
   secure_storage_unavailable: 'Windows安全存储不可用，未保存登录信息。',
+  credentials_unreadable: '无法读取本机加密登录信息，原记录已保留。请检查登录存储，不要删除账号文件。',
   signin_failed: '登录未完成，请重新尝试。',
   signin_timeout: '登录等待超时，请重新登录。',
   consent_declined: '本次没有获得授权，可以重新登录。',

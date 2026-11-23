@@ -20,6 +20,7 @@ import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
 import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
 import { visiblePosition } from './placement.mjs'
 import { readSettings, writeSettings } from './persistence.mjs'
+import { resolveRuntimePaths } from './runtime-paths.mjs'
 import { createControlToken } from '../src/server/control-security.mjs'
 import { createStageServer } from '../src/server/stage-server.mjs'
 
@@ -42,7 +43,8 @@ if (process.env.STAGE_NO_VSYNC === '1') {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // 便携/测试：STAGE_HOME 覆盖用户数据目录（设置文件跟着走，可做干净环境）
-if (process.env.STAGE_HOME) { try { mkdirSync(process.env.STAGE_HOME, { recursive: true }); app.setPath('userData', process.env.STAGE_HOME) } catch {} }
+const runtimePaths = resolveRuntimePaths(app, { profileHome: process.env.STAGE_HOME, authHome: process.env.STAGE_COMPANION_AUTH_HOME, legacyCryptoHome: process.env.STAGE_LEGACY_CRYPTO_HOME })
+const PROFILE_HOME = runtimePaths.home
 // 启动参数：--model "路径\model3.json"（自动化安装 / 快捷方式用）
 const ARG_MODEL = (() => { const i = process.argv.indexOf('--model'); return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : null })()
 // 启动参数 / 环境变量：加载用户扩展（--ext "/extensions/a.js,/extensions/b.js" 或 STAGE_EXT）
@@ -63,7 +65,7 @@ const MODEL_DIRS = [path.join(EXE_DIR, 'model'), path.join(ROOT, 'model')]
 
 // ---------- 启动日志：出问题时至少有一份能发回去的文件 ----------
 // 「下载后打不开」这类反馈，没有日志只能靠猜；有日志一眼能看出卡在哪一步。
-const LOG_DIR = path.join(app.getPath('userData'), 'logs')
+const LOG_DIR = path.join(PROFILE_HOME, 'logs')
 const LOG_FILE = path.join(LOG_DIR, 'main.log')
 function flog(...a) {
   const line = `[${new Date().toISOString()}] ${a.map((v) => (typeof v === 'string' ? v : JSON.stringify(v))).join(' ')}`
@@ -231,7 +233,7 @@ async function exportDiagnostic() {
   md.push('2. 故障记录里 renderer:crash / webgl:context-lost 的次数与时间');
   md.push('3. 显卡/驱动与屏幕刷新率（透明窗口对驱动敏感）')
   const text = md.join('\n')
-  const dest = path.join(app.getPath('userData'), `故障报告-${stamp()}.md`)
+  const dest = path.join(PROFILE_HOME, `故障报告-${stamp()}.md`)
   writeFileSync(dest, text, 'utf8')
   ffault('diagnostic-exported', { path: dest, bytes: text.length, faults: FAULTS.length })
   flog('[fault] 已导出', dest)
@@ -244,7 +246,7 @@ async function exportDiagnostic() {
 // 反馈里「双击闪一下就没、退出码主动中止、连窗口都没有」基本都是显卡/透明窗口的驱动兼容问题。
 // 用启动标记判断：上一次启动没走到「窗口显示」就结束了，这一次就关掉硬件加速重试。
 // 成功启动一次后标记置 true，下次自动恢复正常模式（有毛病也只是降级一次，不会永远降级）。
-const BOOT_FILE = path.join(app.getPath('userData'), 'boot.json')
+const BOOT_FILE = path.join(PROFILE_HOME, 'boot.json')
 const ARG_SAFE = process.argv.includes('--safe') || process.env.STAGE_SAFE === '1'
 let lastBoot = { ok: true, tries: 0 }
 try { lastBoot = { ...lastBoot, ...JSON.parse(readFileSync(BOOT_FILE, 'utf8')) } } catch {}
@@ -386,7 +388,7 @@ async function autoShrinkTextures(modelFile) {
         // STAGE_HOME 必须显式传：脚本按它决定把「改用 _opt2048」写进哪份 settings.json。
         // 不传就走 %APPDATA%\live2d-stage，开发版（userData = %APPDATA%\Electron）会读到旧路径，
         // 于是每次启动都重新压一遍、却始终用原图 —— 实测踩过。
-        env: { ...process.env, STAGE_UTF8: '1', STAGE_HOME: app.getPath('userData') },
+        env: { ...process.env, STAGE_UTF8: '1', STAGE_HOME: PROFILE_HOME },
       })
       cp.stdout?.on('data', (d) => { out += String(d) })
       cp.stderr?.on('data', (d) => { out += String(d) })
@@ -446,11 +448,11 @@ if (!gotLock) { app.quit() } else {
 }
 
 
-const settingsFile = () => path.join(app.getPath('userData'), 'settings.json')
+const settingsFile = () => path.join(PROFILE_HOME, 'settings.json')
 
 // ---------- 编辑台（浏览器 webUI）共用的文件 / RPC ----------
 // 动作 JSON 归主进程管（userData），HTTP 服务只做转发；舞台内部状态则转给舞台窗口。
-const actionsFile = () => path.join(app.getPath('userData'), 'actions.json')
+const actionsFile = () => path.join(PROFILE_HOME, 'actions.json')
 async function readActionsFile() {
   try { return JSON.parse(await readFile(actionsFile(), 'utf8')) } catch { return null }
 }
@@ -485,13 +487,15 @@ function disableKernel(expectedMode = null) {
   if (companionKernel) { companionKernel.cancel(); companionKernel.pause(true) }
 }
 let chatAuth = null
+const speechConfigFile = () => path.join(path.dirname(process.env.STAGE_COMPANION_AUTH_HOME || path.join(PROFILE_HOME, 'chatgpt-auth')), 'voice-reference', 'active.json')
+const voiceEnabled = () => new LocalSpeech({ configFile: speechConfigFile() }).snapshot().enabled
 function getChat() {
+  if (runtimePaths.authError) throw Object.assign(new Error(), { code: 'credentials_unreadable' })
   if (!chatRuntime) {
-    chatAuth = new ChatGptAuth({ store: new ProtectedAccountStore(process.env.STAGE_COMPANION_AUTH_HOME || path.join(app.getPath('userData'), 'chatgpt-auth'), safeStorage), openExternal: url => shell.openExternal(url) })
-    const sharedData = path.dirname(process.env.STAGE_COMPANION_AUTH_HOME || path.join(app.getPath('userData'), 'chatgpt-auth'))
+    chatAuth = new ChatGptAuth({ store: new ProtectedAccountStore(process.env.STAGE_COMPANION_AUTH_HOME || path.join(PROFILE_HOME, 'chatgpt-auth'), safeStorage), openExternal: url => shell.openExternal(url) })
     chatRuntime = new ChatRuntime({
       kernel: getKernel(), provider: new ChatGptProvider({ auth: chatAuth }),
-      speech: new LocalSpeech({ configFile: path.join(sharedData, 'voice-reference', 'active.json') }),
+      speech: new LocalSpeech({ configFile: speechConfigFile() }),
       speechState: async () => (await callStageRpc('body:snapshot')).value,
     })
   }
@@ -531,7 +535,7 @@ async function callStageRpc(op, payload) {
       else if (command === 'ack') { chatAuth.acknowledge(); await chat.provider.loadModels() }
       else if (command === 'models') await chat.provider.loadModels()
       else if (command === 'model') { chat.resetIdentity(); chat.provider.select(payload?.model) }
-      else if (command === 'voice') { if (payload?.value === false) kernel.cancel(); chat.speech.setEnabled(payload?.value) }
+      else if (command === 'voice') { if (payload?.value === false) kernel.cancel(); chat.speech.setEnabled(payload?.value); broadcastSettings() }
       else if (command === 'manage-usage') await shell.openExternal('https://chatgpt.com/settings/usage')
       else if (command !== 'snapshot') {
         if (!kernelEnabled || kernelMode !== 'chatgpt-plan') return { ok: false, error: '请先开启文字对话。' }
@@ -541,7 +545,10 @@ async function callStageRpc(op, payload) {
         else return { ok: false, error: '不支持的对话操作。' }
       }
       return { ok: true, value: { ...chat.snapshot(), auth: chatAuth.snapshot(), models: chat.provider.models, selectedModel: chat.provider.model, enabled: kernelEnabled && kernelMode === 'chatgpt-plan', state: kernel.state, queued: kernel.queue.length } }
-    } catch (error) { return { ok: false, error: CHAT_ERRORS[error.code] || '对话操作未完成，请检查输入或重新登录。' } }
+    } catch (error) {
+      flog('[chat:operation-failed]', JSON.stringify({ name: error.name, code: error.code || null, site: error.stack?.split('\n').slice(1, 3).join('\n') }))
+      return { ok: false, error: CHAT_ERRORS[error.code] || '对话操作未完成，请检查输入或重新登录。' }
+    }
   }
   if (op === 'local:kernel') { openKernelPanel(); return { ok: true } }
   if (String(op).startsWith('kernel:')) {
@@ -825,11 +832,11 @@ async function createWindow() {
 // ---------- DSH 工作状态：读桥接插件写的状态文件，推给渲染层 ----------
 // 插件（dsh-live2d-bridge）在 DSH 侧监听 session/event，原子写 ~/.dsh/live2d/status.json；
 // 这里只做「文件变了就转发」，不解析业务、不阻塞界面。文件不在 = DSH 侧没装插件，舞台按空闲处理。
-const AGENT_STATUS_FILE = path.join(app.getPath('userData'), 'integration', 'status.json')
+const AGENT_STATUS_FILE = path.join(PROFILE_HOME, 'integration', 'status.json')
 
 // 外部控制入口的发现文件：端口随机、token 只有主进程知道，agent/CLI 从这里读。
 // 不做「退出即删」—— 留下的旧端口比消失的文件更容易被排查（连不上就能判断没开）。
-const ENDPOINT_FILE = path.join(app.getPath('userData'), 'integration', 'endpoint.json')
+const ENDPOINT_FILE = path.join(PROFILE_HOME, 'integration', 'endpoint.json')
 async function writeEndpoint() {
   try {
     await mkdir(path.dirname(ENDPOINT_FILE), { recursive: true })
@@ -1102,7 +1109,7 @@ function wireWindowDrag() {
       saveSettings()
     }
     if (dragLog) {
-      const file = path.join(app.getPath('userData'), 'drag-log.json')
+      const file = path.join(PROFILE_HOME, 'drag-log.json')
       try {
         writeFileSync(file, JSON.stringify(dragLog, null, 1))
         console.log('[drag-log]', dragLog.length, '帧 →', file)
@@ -1240,7 +1247,7 @@ function updateStageThrottle() {
 /** 设置变了广播给所有窗口：覆盖层按新值立即生效，设置窗口刷新读数 */
 function broadcastSettings() {
   for (const w of BrowserWindow.getAllWindows()) {
-    if (!w.isDestroyed()) w.webContents.send('shell:changed', { ...settings, token, port: srv?.port || null })
+    if (!w.isDestroyed()) w.webContents.send('shell:changed', { ...settings, token, port: srv?.port || null, voiceEnabled: voiceEnabled() })
   }
 }
 
@@ -1251,7 +1258,7 @@ function wireIpc() {
   ipcMain.on('fault:info', (_e, info) => { RENDERER_INFO = info || null })
   ipcMain.handle('fault:export', () => exportDiagnostic())
 
-  ipcMain.handle('shell:get', () => ({ ...settings, token, port: srv?.port || null }))
+  ipcMain.handle('shell:get', () => ({ ...settings, token, port: srv?.port || null, voiceEnabled: voiceEnabled() }))
   ipcMain.handle('shell:set', async (_e, patch = {}) => applySettingsPatch(patch))
   ipcMain.handle('model:choose', async () => {
     const python = process.env.STAGE_MANAGER_PYTHON
@@ -1270,7 +1277,7 @@ function wireIpc() {
   // 缩放锚点要用：光标停在某个模型点上，缩放后把窗口挪回去让那个点还在光标下
   ipcMain.handle('win:bounds', () => (win && !win.isDestroyed() ? win.getBounds() : null))
   // ---------- 改动补丁：记录我们这层加的姿势/台词/反应/热区，发布时只发这个文件 ----------
-  const patchFile = () => path.join(app.getPath('userData'), 'stage-patch.json')
+  const patchFile = () => path.join(PROFILE_HOME, 'stage-patch.json')
   ipcMain.handle('patch:save', async (_e, data) => {
     try {
       await mkdir(path.dirname(patchFile()), { recursive: true })
@@ -1432,7 +1439,7 @@ app.whenReady().then(async () => {
     version: app.getVersion(),
     packaged: app.isPackaged,
     exe: process.execPath,
-    userData: app.getPath('userData'),
+    userData: PROFILE_HOME,
     modelDirs: MODEL_DIRS,
     safeMode: SAFE,
     crashLastTime,
@@ -1478,7 +1485,7 @@ app.whenReady().then(async () => {
   try {
     srv = await createStageServer({
       root: ROOT, model: settings.model, token, port: 0,
-      integrationDir: path.join(app.getPath('userData'), 'integration'),
+      integrationDir: path.join(PROFILE_HOME, 'integration'),
       readActions: readActionsFile,
       writeActions: writeActionsFile,
       stageRpc: callStageRpc,

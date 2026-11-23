@@ -13,3 +13,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Normal use must not open a debugging port. Temporary acceptance uses 9237; restart normally afterward.
 - Use appropriate tests. UI/audio/GPU/sleep/long-running claims need observations, not syntax checks or a surviving process. Update public documents with actual behavior and limits.
 - Do not start subagents, broadcasts, recurring automation or new paid services without applicable owner authorization.
+
+- Current owner preference: develop, test and save versions locally. Do not push to GitHub or create PRs unless the owner explicitly requests it again.

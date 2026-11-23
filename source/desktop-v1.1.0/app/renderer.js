@@ -861,6 +861,7 @@ async function bootStage() {
   // 故障记录：全局报错 / 扩展加载失败 / 长帧 → 上报主进程落盘（见 docs/故障排查.md）
   state.faults = createFaultLog({
     send: (kind, detail) => { try { shell.fault?.(kind, detail) } catch {} },
+    context: () => ({ frameCostMs: stage.frameLoop?.info().costMs, audioState: window.__companionBody?.('snapshot')?.audioState }),
     info: { engine: __ENGINE, nativeCore: !shell.contextIsolated },
   })
   if (stage.frameLoop) stage.frameLoop.onFrame(state.faults.frameGap)

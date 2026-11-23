@@ -46,25 +46,40 @@ export class BodySession {
 /** Separate overlay: stopping a kernel task never clears manual clothes/expressions. */
 export function installBodyPort(shell = window.shell, presentation = null) {
   let overlay = null, timer = null, audio = null, audioUrl = null, audioState = 'idle', audioEpoch = 0
+  let playbackTiming = null, audioWarmupMs = null
   let context = null, analyser = null, source = null, animation = null, smoothed = 0, bubbles = true
-  Promise.resolve(shell?.get?.()).then(s => { bubbles = s?.bubble !== false }).catch(() => {})
-  shell?.onSettings?.(s => { bubbles = s.bubble !== false; if (!bubbles) { clearText(); if (!['playing', 'starting'].includes(audioState)) presentation?.setFace('idle') } })
+  const prepareAudio = () => {
+    if (!presentation || context) return
+    const started = performance.now()
+    context = new AudioContext()
+    audioWarmupMs = +(performance.now()-started).toFixed(1)
+    context.resume().catch(() => {})
+  }
+  Promise.resolve(shell?.get?.()).then(s => { bubbles = s?.bubble !== false; if (s?.voiceEnabled) prepareAudio() }).catch(() => {})
+  shell?.onSettings?.(s => { bubbles = s.bubble !== false; if (s.voiceEnabled) { try { prepareAudio() } catch {} }; if (!bubbles) { clearText(); if (!['playing', 'starting'].includes(audioState)) presentation?.setFace('idle') } })
   const stopAudio = () => { cancelAnimationFrame(animation); animation = null; source?.disconnect(); source = null; analyser?.disconnect(); analyser = null; smoothed = 0; presentation?.stop(); audioEpoch++; if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); audio = null } if (audioUrl) URL.revokeObjectURL(audioUrl); audioUrl = null; audioState = 'idle' }
   const playAudio = async (wav, volume, current) => {
     stopAudio(); const epoch = audioEpoch
-    const bytes = Uint8Array.from(atob(wav), c => c.charCodeAt(0))
-    audioUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }))
+    const started = performance.now()
+    // Native asynchronous decoding avoids a per-byte JavaScript loop on the render thread.
+    const blob = await (await fetch(`data:audio/wav;base64,${wav}`)).blob()
+    if (epoch !== audioEpoch || !current()) return
+    audioUrl = URL.createObjectURL(blob)
+    playbackTiming = { decodeMs: +(performance.now()-started).toFixed(1) }
     const player = new Audio(audioUrl); audio = player; player.volume = volume; audioState = 'starting'
     player.onended = () => { if (epoch === audioEpoch) { audioState = 'ended'; cancelAnimationFrame(animation); presentation?.setAudioLevel(0); presentation?.setFace(overlay ? 'responding' : 'idle'); URL.revokeObjectURL(audioUrl); audioUrl = null } }
     player.onerror = () => { if (epoch === audioEpoch) { audioState = 'error'; cancelAnimationFrame(animation); presentation?.stop() } }
     if (presentation) {
       context ||= new AudioContext()
+      playbackTiming.contextCreatedMs = +(performance.now()-started).toFixed(1)
       await context.resume()
       if (epoch !== audioEpoch || !current()) return
       source = context.createMediaElementSource(player); analyser = context.createAnalyser(); analyser.fftSize = 512
       source.connect(analyser); analyser.connect(context.destination)
     }
+    playbackTiming.graphReadyMs = +(performance.now()-started).toFixed(1)
     await player.play()
+    playbackTiming.playingMs = +(performance.now()-started).toFixed(1)
     if (epoch !== audioEpoch || !current()) { player.pause(); return }
     audioState = 'playing'; presentation?.setFace('speaking')
     if (analyser) {
@@ -85,7 +100,7 @@ export function installBodyPort(shell = window.shell, presentation = null) {
     document.body.append(overlay); timer = setTimeout(() => { clearText(); if (!['playing', 'starting'].includes(audioState)) presentation?.setFace('idle') }, durationMs)
   } })
   window.__companionBody = (op, payload) => {
-    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay, audioState, presentation: presentation?.snapshot() || null }
+    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay, audioState, audioPrepared: !!context, audioWarmupMs, playbackTiming, presentation: presentation?.snapshot() || null }
     if (op === 'capabilities') return { protocol: 1, commands: [...port.capabilities], emotion: [], gaze: false, gestures: [] }
     if (op === 'begin') return port.begin(payload)
     if (op === 'execute') return port.execute(payload)

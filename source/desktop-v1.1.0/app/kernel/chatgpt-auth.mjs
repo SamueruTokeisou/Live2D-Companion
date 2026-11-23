@@ -15,8 +15,11 @@ export class ProtectedAccountStore {
   constructor(directory, cryptoStorage) { this.file = path.join(directory, 'accounts.json'); this.crypto = cryptoStorage }
   read() {
     if (!this.crypto.isEncryptionAvailable()) throw new ChatError('secure_storage_unavailable')
-    const raw = readSettings(this.file)
-    return raw.encrypted ? JSON.parse(this.crypto.decryptString(Buffer.from(raw.encrypted, 'base64'))) : null
+    try {
+      const raw = readSettings(this.file)
+      return raw.encrypted ? JSON.parse(this.crypto.decryptString(Buffer.from(raw.encrypted, 'base64'))) : null
+    }
+    catch { throw new ChatError('credentials_unreadable') }
   }
   write(data) {
     if (!this.crypto.isEncryptionAvailable()) throw new ChatError('secure_storage_unavailable')
