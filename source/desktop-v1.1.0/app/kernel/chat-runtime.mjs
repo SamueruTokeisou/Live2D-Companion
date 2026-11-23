@@ -35,8 +35,8 @@ export const CHAT_ERRORS = {
   cancelled: '本轮已停止。',
 }
 export class ChatRuntime {
-  constructor({ kernel, provider, now = () => Date.now(), maxPerMinute = 6, maxPerSession = 24 } = {}) {
-    this.kernel = kernel; this.provider = provider; this.now = now; this.maxPerMinute = maxPerMinute; this.maxPerSession = maxPerSession
+  constructor({ kernel, provider, speech = null, speechState = null, now = () => Date.now(), maxPerMinute = 6, maxPerSession = 24 } = {}) {
+    this.kernel = kernel; this.provider = provider; this.speech = speech; this.speechState = speechState; this.now = now; this.maxPerMinute = maxPerMinute; this.maxPerSession = maxPerSession
     this.entries = []; this.history = []; this.calls = []; this.verified = false; this.model = null; this.lastError = null
     this.knownInput = 0; this.knownOutput = 0; this.unknownUsage = 0; this.completed = 0; this.limited = 0
   }
@@ -51,7 +51,7 @@ export class ChatRuntime {
   snapshot() {
     const recentCalls = this.calls.filter(at => at > this.now() - 60000).length
     return structuredClone({ provider: this.provider.id || 'codex-chatgpt', verified: this.verified, model: this.model, lastError: this.lastError,
-      entries: this.entries, limits: { maxInputChars: 500, maxOutputChars: 500, timeoutSeconds: 45, callsPerRound: 1, maxPerMinute: this.maxPerMinute, maxPerSession: this.maxPerSession },
+      entries: this.entries, speech: this.speech?.snapshot() || null, limits: { maxInputChars: 500, maxOutputChars: 500, timeoutSeconds: 45, callsPerRound: 1, maxPerMinute: this.maxPerMinute, maxPerSession: this.maxPerSession },
       usage: { appRequests: this.calls.length, completed: this.completed, knownInputTokens: this.knownInput, knownOutputTokens: this.knownOutput, unknownUsageRounds: this.unknownUsage, limitedOutputs: this.limited, amount: null,
         remainingThisMinute: Math.max(0, this.maxPerMinute-recentCalls), remainingThisSession: Math.max(0, this.maxPerSession-this.calls.length) } })
   }
@@ -89,7 +89,8 @@ export class ChatRuntime {
       reply.status = 'completed'; reply.limited = !!result.limited
       this.history.push({ role: 'user', content: event.payload.text }, { role: 'assistant', content: reply.text })
       this.history = this.history.slice(-6)
-      await ctx.sleep(4000)
+      if (this.speech) await this.speech.speak(reply.text, { ...ctx, speechState: this.speechState })
+      if (current()) await ctx.sleep(4000)
     } catch (error) {
       if (!usageCounted && error.code !== 'local_limit') this.unknownUsage++
       if (reply.status !== 'completed') {

@@ -90,6 +90,9 @@ test('direct SSE handles split UTF8/CRLF, account models, exact request fields a
   assert.equal(result.text, '你好！'); assert.deepEqual(chunks, ['你好', '你好！']); assert.equal(result.usage.totalTokens, 15)
   const body = JSON.parse(requests[1].body); assert.equal(body.store, false); assert.equal(body.stream, true); assert.equal(body.model, 'test-model')
   assert.deepEqual(Object.keys(body).sort(), ['input', 'instructions', 'model', 'store', 'stream'])
+  assert.match(body.instructions, /只使用自然、简短的日语/)
+  assert.match(body.instructions, /不附中文翻译/)
+  assert.match(body.instructions, /不扮演任何动漫角色/)
   assert.equal(p.models.length, 1); assert.equal(requests[1].url, 'https://api.openai.com/v1/responses')
 })
 test('partial, late quota failures and output cap are not successful conversations', async () => {

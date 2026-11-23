@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id)
 const states = { idle: '待机', thinking: '正在等待模型', responding: '正在回应', paused: '已关闭', error: '本轮出错，可以重试' }
 const statuses = { thinking: '等待中', streaming: '正在输出', completed: '已完成', cancelled: '已停止', failed: '未完成' }
+let voiceEnabled = false
 let enabled = false, refreshing = false, lastEntries = '', accountsKey = '', modelsKey = '', actionError = ''
 async function call(op, payload) {
   const reply = await window.shell.stageRpc('chat:' + op, payload)
@@ -9,6 +10,8 @@ async function call(op, payload) {
 }
 function render(s) {
   enabled = s.enabled
+  voiceEnabled = !!s.speech?.enabled; $('voice').disabled = !s.speech?.configured
+  $('voice').textContent = !s.speech?.configured ? '声音准备中' : voiceEnabled ? '关闭日语朗读' : '开启日语朗读'
   $('status').textContent = `${enabled ? states[s.state] : '文字对话已关闭'} · ${s.verified ? '真实后端已验证' : '真实后端尚未验证'}${s.model ? ' · ' + s.model : ''}`
   $('toggle').textContent = enabled ? '关闭对话' : '开启对话'
   const auth = s.auth || {}, ready = enabled && auth.signedIn && auth.planEnabled && !auth.needsWelcome && !auth.pending
@@ -21,7 +24,7 @@ function render(s) {
   const mk = JSON.stringify([s.models, s.selectedModel])
   if (mk !== modelsKey) { $('models').replaceChildren(...(s.models?.length ? s.models : [{ slug: '', displayName: '授权后刷新模型' }]).map(m => new Option(m.displayName, m.slug, false, m.slug === s.selectedModel))); modelsKey = mk }
   $('models').disabled = !ready; $('reload-models').disabled = !ready
-  $('error').textContent = s.lastError?.message || actionError
+  $('error').textContent = s.lastError?.message || s.speech?.lastError || actionError
   const content = JSON.stringify(s.entries)
   if (content !== lastEntries) {
     const nearBottom = $('messages').scrollHeight - $('messages').scrollTop - $('messages').clientHeight < 80
@@ -49,6 +52,7 @@ $('input').onsubmit = event => { event.preventDefault(); const text = $('text').
 $('stop').onclick = () => action(() => call('stop'))
 $('clear').onclick = () => action(() => call('clear'))
 $('toggle').onclick = () => action(() => call('enable', { value: !enabled }))
+$('voice').onclick = () => action(() => call('voice', { value: !voiceEnabled }))
 $('login').onclick = () => action(() => call('login'))
 $('add-account').onclick = () => action(() => call('login', { newAccount: true }))
 $('cancel-login').onclick = () => action(() => call('cancel-login'))

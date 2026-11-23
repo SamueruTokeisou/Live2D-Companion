@@ -32,7 +32,7 @@ export class ChatGptProvider {
       const model = this.model, token = await this.auth.token()
       const response = await this.fetch('https://api.openai.com/v1/responses', { method: 'POST', redirect: 'error', signal: combined,
         headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, store: false, stream: true, instructions: '你是用户的桌面伙伴。使用自然简短的中文回应，通常不超过150字。只进行文字聊天，不声称执行电脑操作。', input: messages.slice(-7).map(m => ({ role: m.role, content: m.content })) }) })
+        body: JSON.stringify({ model, store: false, stream: true, instructions: '你是用户的桌面AI助手。用户可以用中文或日文输入；你的回答只使用自然、简短的日语，通常不超过150字。不附中文翻译、罗马音或双语字幕。保持普通AI对话，不扮演任何动漫角色、不编造固定人物性格。只进行文字聊天，不声称执行电脑操作。', input: messages.slice(-7).map(m => ({ role: m.role, content: m.content })) }) })
       if (!response.ok) {
         let code; try { code = (await response.json()).error?.code } catch {}
         throw failure(response.status, code)
