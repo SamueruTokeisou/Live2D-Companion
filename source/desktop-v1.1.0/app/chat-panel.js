@@ -14,9 +14,14 @@ function render(s) {
   $('volume').disabled = !s.speech?.configured
   if (!volumeEditing) $('volume').value = Math.round((s.speech?.volume ?? .7) * 100)
   $('volume-value').textContent = $('volume').value + '%'
-  const serviceLabels = {unknown:'尚未检查', checking:'正在检查', ready:'已连接', offline:'未启动或暂时无法连接；请双击项目目录中的 StartVoice.cmd。文字聊天仍可使用。', incompatible:'端口响应不是预期语音服务，请检查本机语音环境。'}
+  const serviceLabels = {unknown:'尚未检查', checking:'正在检查', ready:'已连接；关闭桌宠后仍运行，可先停止语音释放资源。', offline:'未启动或暂时无法连接；可点击启动语音，也可运行 StartVoice.cmd。文字聊天仍可使用。', incompatible:'端口响应不是预期语音服务，请检查本机语音环境。'}
   $('voice-status').textContent = !s.speech?.configured ? '语音：尚未配置有效参考录音；文字聊天仍可使用。' : s.speech?.busy ? '语音：正在合成或播放，可点击停止回应。' : '语音服务：' + (serviceLabels[s.speech?.service] || '尚未检查')
-  $('voice-check').disabled = s.speech?.service === 'checking'
+  const operation = s.voiceControl?.operation
+  $('voice-start').disabled = !s.voiceControl?.available || !!operation
+  $('voice-stop').disabled = !s.voiceControl?.available || !!operation
+  if (operation) $('voice-status').textContent = operation === 'start' ? '正在启动本机语音，首次可能较慢；文字聊天仍可使用。' : '正在停止语音服务并释放资源…'
+  else if (s.voiceControl?.lastError) $('voice-status').textContent = s.voiceControl.lastError
+  $('voice-check').disabled = s.speech?.service === 'checking' || !!operation
   $('voice').textContent = !s.speech?.configured ? '声音准备中' : voiceEnabled ? '关闭中文朗读' : '开启中文朗读'
   $('status').textContent = `${enabled ? states[s.state] : '文字对话已关闭'} · ${s.verified ? '真实后端已验证' : '真实后端尚未验证'}${s.model ? ' · ' + s.model : ''}`
   $('toggle').textContent = enabled ? '关闭对话' : '开启对话'
@@ -61,6 +66,8 @@ $('toggle').onclick = () => action(() => call('enable', { value: !enabled }))
 $('volume').oninput = () => { volumeEditing = true; $('volume-value').textContent = $('volume').value + '%' }
 $('volume').onchange = () => { volumeEditing = false; action(() => call('volume', { value: Number($('volume').value) / 100 })) }
 $('volume').onblur = () => { volumeEditing = false }
+$('voice-start').onclick = () => action(() => call('voice-service', { action: 'start' }))
+$('voice-stop').onclick = () => action(() => call('voice-service', { action: 'stop' }))
 $('voice-check').onclick = () => action(() => call('voice-status'))
 $('voice').onclick = () => action(() => call('voice', { value: !voiceEnabled }))
 $('login').onclick = () => action(() => call('login'))

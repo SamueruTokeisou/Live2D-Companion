@@ -4,7 +4,7 @@ import { ChatError } from './chat-errors.mjs'
 
 /** Optional local speech. Configuration and reference recordings never enter the renderer. */
 export class LocalSpeech {
-  constructor({ configFile, fetchImpl = fetch, timeoutMs = 30000, probeTimeoutMs = 1500 }) { this.timeoutMs = timeoutMs; this.probeTimeoutMs = probeTimeoutMs; this.blocked = false; this.configFile = configFile; this.fetch = fetchImpl; this.error = null; this.busy = false; this.service = 'unknown'; this.probing = null }
+  constructor({ configFile, fetchImpl = fetch, timeoutMs = 30000, probeTimeoutMs = 1500 }) { this.timeoutMs = timeoutMs; this.probeTimeoutMs = probeTimeoutMs; this.blocked = false; this.configFile = configFile; this.fetch = fetchImpl; this.error = null; this.busy = false; this.service = 'unknown'; this.probing = null; this.serviceEpoch = 0 }
   settings() {
     if (!existsSync(this.configFile)) return null
     try {
@@ -37,12 +37,14 @@ export class LocalSpeech {
     }).finally(() => { this.probing = null })
     return this.probing
   }
+  resetAfterServiceStop() { this.serviceEpoch++; this.busy = false; this.blocked = false; this.error = null }
   async speak(text, ctx) {
     const config = this.config(); if (!config) return false
     if (this.blocked) { this.error = '上一轮语音超时，本次进程已暂停语音。请重启语音服务和桌宠后再试。'; return false }
     if (this.busy) { this.error = '上一轮语音仍在结束，本轮保留文字回应。'; return false }
     this.busy = true; this.error = null
-    const current = () => !ctx.signal.aborted && ctx.isCurrent()
+    const epoch = this.serviceEpoch
+    const current = () => epoch === this.serviceEpoch && !ctx.signal.aborted && ctx.isCurrent()
     const timeout = AbortSignal.timeout(this.timeoutMs)
     try {
       const response = await this.fetch('http://127.0.0.1:9880/tts', { method: 'POST', redirect: 'error', signal: timeout,
@@ -72,9 +74,9 @@ export class LocalSpeech {
       if (current()) throw Error('playback timeout')
       return false
     } catch {
-      if (timeout.aborted) this.blocked = true
+      if (timeout.aborted && epoch === this.serviceEpoch) this.blocked = true
       if (current()) { this.error = '语音暂不可用，本轮保留文字回应。'; await ctx.command('audio-stop').catch(() => {}) }
       return false
-    } finally { this.busy = false }
+    } finally { if (epoch === this.serviceEpoch) this.busy = false }
   }
 }

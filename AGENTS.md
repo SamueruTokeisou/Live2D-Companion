@@ -17,3 +17,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Current owner preference: develop, test and save versions locally. Do not push to GitHub or create PRs unless the owner explicitly requests it again.
 
 - The owner removed Haru. Do not import, restore, download or launch Haru/sample characters for default acceptance. Use the current DeepSeek character; generic logic uses synthetic unit fixtures unless the owner explicitly selects another model.
+
+- Work autonomously within the selected scope and keep progress/final reports concise. Avoid redundant reads, model calls and repeated checks after passing validation; preserve the same implementation and verification standard.

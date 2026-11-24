@@ -2,6 +2,9 @@ import { ChatError } from './chat-errors.mjs'
 import { localHandler } from './event-kernel.mjs'
 
 export const CHAT_ERRORS = {
+  voice_control_unavailable: '本机语音控制入口未准备好，请用角色管理器启动桌宠，并检查语音环境是否安装。',
+  voice_operation_busy: '语音服务正在启停，请等当前操作完成后再试。',
+  voice_operation_invalid: '不支持的语音服务操作。',
   speech_not_configured: '语音参考未配置完整，请先检查本机语音设置；文字聊天仍可使用。',
   invalid_volume: '音量必须在0%到100%之间。',
   signin_required: '请点击 Continue with ChatGPT 登录。',

@@ -97,6 +97,8 @@ def _start(profile, debug=False):
     read_config(data_dir(profile) / 'settings.json')
     _stop_all()
     env = os.environ.copy(); env['STAGE_HOME'] = str(data_dir(profile)); env['STAGE_COMPANION_AUTH_HOME'] = str(ROOT / 'data/chatgpt-auth')
+    env['STAGE_VOICE_PYTHON'] = str(ROOT / 'runtime/voice-tools/Scripts/python.exe')
+    env['STAGE_VOICE_SCRIPT'] = str(ROOT / 'tools/voice_service.py')
     env['STAGE_LEGACY_CRYPTO_HOME'] = str(ROOT / 'data/deepseek')
     env['STAGE_MANAGER_PYTHON'] = str(Path(sys.executable).with_name('pythonw.exe'))
     env['STAGE_MANAGER_FILE'] = str(Path(__file__).resolve())

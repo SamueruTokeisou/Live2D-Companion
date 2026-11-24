@@ -13,6 +13,7 @@ import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { ChatGptAuth, ProtectedAccountStore } from './kernel/chatgpt-auth.mjs'
+import { VoiceServiceControl } from './kernel/voice-service-control.mjs'
 import { LocalSpeech } from './kernel/local-speech.mjs'
 import { ChatGptProvider } from './kernel/chatgpt-provider.mjs'
 import { ChatRuntime, CHAT_ERRORS } from './kernel/chat-runtime.mjs'
@@ -486,7 +487,7 @@ function disableKernel(expectedMode = null) {
   kernelEnabled = false
   if (companionKernel) { companionKernel.cancel(); companionKernel.pause(true) }
 }
-let chatAuth = null
+let chatAuth = null, voiceControl = null
 const speechConfigFile = () => path.join(path.dirname(process.env.STAGE_COMPANION_AUTH_HOME || path.join(PROFILE_HOME, 'chatgpt-auth')), 'voice-reference', 'active.json')
 const voiceEnabled = () => new LocalSpeech({ configFile: speechConfigFile() }).snapshot().enabled
 function getChat() {
@@ -500,6 +501,15 @@ function getChat() {
     })
   }
   return chatRuntime
+}
+function getVoiceControl() {
+  if (!voiceControl) voiceControl = new VoiceServiceControl({ python:process.env.STAGE_VOICE_PYTHON, script:process.env.STAGE_VOICE_SCRIPT,
+    onComplete: async action => {
+      const speech=getChat().speech; await speech.checkService()
+      if (action === 'stop' && speech.service === 'offline') { speech.resetAfterServiceStop(); return true }
+      return action === 'start' && speech.service === 'ready'
+    } })
+  return voiceControl
 }
 function selectKernelMode(mode) {
   const kernel = getKernel()
@@ -536,6 +546,11 @@ async function callStageRpc(op, payload) {
       else if (command === 'models') await chat.provider.loadModels()
       else if (command === 'model') { chat.resetIdentity(); chat.provider.select(payload?.model) }
       else if (command === 'voice') { if (payload?.value === false) kernel.cancel(); chat.speech.setEnabled(payload?.value); broadcastSettings() }
+      else if (command === 'voice-service') {
+        if (!['start','stop'].includes(payload?.action)) throw Object.assign(new Error(), {code:'voice_operation_invalid'})
+        if (payload.action === 'stop') kernel.cancel()
+        getVoiceControl().request(payload.action)
+      }
       else if (command === 'voice-status') await chat.speech.checkService()
       else if (command === 'volume') { chat.speech.setVolume(payload?.value); await callStageRpc('body:volume', { value: payload.value }) }
       else if (command === 'manage-usage') await shell.openExternal('https://chatgpt.com/settings/usage')
@@ -546,7 +561,7 @@ async function callStageRpc(op, payload) {
         else if (command === 'clear') chat.clear()
         else return { ok: false, error: '不支持的对话操作。' }
       }
-      return { ok: true, value: { ...chat.snapshot(), auth: chatAuth.snapshot(), models: chat.provider.models, selectedModel: chat.provider.model, enabled: kernelEnabled && kernelMode === 'chatgpt-plan', state: kernel.state, queued: kernel.queue.length } }
+      return { ok: true, value: { ...chat.snapshot(), voiceControl:getVoiceControl().snapshot(), auth: chatAuth.snapshot(), models: chat.provider.models, selectedModel: chat.provider.model, enabled: kernelEnabled && kernelMode === 'chatgpt-plan', state: kernel.state, queued: kernel.queue.length } }
     } catch (error) {
       flog('[chat:operation-failed]', JSON.stringify({ name: error.name, code: error.code || null, site: error.stack?.split('\n').slice(1, 3).join('\n') }))
       return { ok: false, error: CHAT_ERRORS[error.code] || '对话操作未完成，请检查输入或重新登录。' }
