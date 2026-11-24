@@ -17,7 +17,7 @@ class SourceFoundationTests(unittest.TestCase):
    out=prepare(core,folder/'app')
    self.assertTrue((out/'companion/kernel/event-kernel.mjs').is_file())
    self.assertFalse((out/'native').exists());self.assertFalse((out/'tools').exists());self.assertFalse((out/'models').exists())
-   record=json.loads((out/'build-inputs.json').read_text());key='companion/kernel/event-kernel.mjs'
+   record=json.loads((out/'build-inputs.json').read_text(encoding='utf-8'));key='companion/kernel/event-kernel.mjs'
    self.assertEqual(record['inputs'][key],hashlib.sha256((out/key).read_bytes()).hexdigest())
  def test_composition_refuses_output_outside_build_workspace(self):
   with tempfile.TemporaryDirectory() as temporary:

@@ -21,9 +21,9 @@ def prepare(core, output=None):
         data=(ROOT/rel).read_bytes();inputs[name]=hashlib.sha256(data).hexdigest()
         target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
     (output/'vendor').mkdir();shutil.copy2(core,output/'vendor/live2dcubismcore.min.js')
-    package=json.loads((output/'package.json').read_text());package.update(name='live2d-companion',version='0.4.8-dev',scripts={})
+    package=json.loads((output/'package.json').read_text(encoding='utf-8'));package.update(name='live2d-companion',version='0.4.8-dev',scripts={})
     (output/'package.json').write_text(json.dumps(package,indent=2),encoding='utf-8')
-    lock=json.loads((output/'package-lock.json').read_text());lock.update(name=package['name'],version=package['version']);lock['packages'][''].update(name=package['name'],version=package['version'])
+    lock=json.loads((output/'package-lock.json').read_text(encoding='utf-8'));lock.update(name=package['name'],version=package['version']);lock['packages'][''].update(name=package['name'],version=package['version'])
     (output/'package-lock.json').write_text(json.dumps(lock,indent=2),encoding='utf-8')
     from PIL import Image,ImageDraw
     assets=output/'assets';assets.mkdir();icon=Image.new('RGBA',(32,32));ImageDraw.Draw(icon).ellipse((3,3,29,29),fill='#2582b5');icon.save(assets/'app-icon.png');icon.save(assets/'app.ico')
