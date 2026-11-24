@@ -1,23 +1,42 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { writeSettings } from '../persistence.mjs'
+import { ChatError } from './chat-errors.mjs'
 
 /** Optional local speech. Configuration and reference recordings never enter the renderer. */
 export class LocalSpeech {
-  constructor({ configFile, fetchImpl = fetch, timeoutMs = 30000 }) { this.timeoutMs = timeoutMs; this.blocked = false; this.configFile = configFile; this.fetch = fetchImpl; this.error = null; this.busy = false }
-  config() {
+  constructor({ configFile, fetchImpl = fetch, timeoutMs = 30000, probeTimeoutMs = 1500 }) { this.timeoutMs = timeoutMs; this.probeTimeoutMs = probeTimeoutMs; this.blocked = false; this.configFile = configFile; this.fetch = fetchImpl; this.error = null; this.busy = false; this.service = 'unknown'; this.probing = null }
+  settings() {
     if (!existsSync(this.configFile)) return null
     try {
       const c = JSON.parse(readFileSync(this.configFile, 'utf8'))
-      if (c.enabled !== true) return null
       if (typeof c.reference !== 'string' || !existsSync(c.reference) || typeof c.promptText !== 'string' || !c.promptText.trim()) return null
       return c
     } catch { return null }
   }
+  config() { const c = this.settings(); return c?.enabled === true ? c : null }
   setEnabled(value) {
-    if (typeof value !== 'boolean' || !existsSync(this.configFile)) throw Error('speech not configured')
-    const config = JSON.parse(readFileSync(this.configFile, 'utf8')); config.enabled = value; writeSettings(this.configFile, config); this.error = null
+    if (typeof value !== 'boolean' || !this.settings()) throw new ChatError('speech_not_configured')
+    const config = this.settings(); config.enabled = value; writeSettings(this.configFile, config); this.error = null
   }
-  snapshot() { return { configured: existsSync(this.configFile), enabled: !!this.config(), lastError: this.error, engine: 'GPT-SoVITS', language: this.config()?.textLanguage === 'ja' ? 'ja' : 'zh' } }
+  setVolume(value) {
+    if (!Number.isFinite(value) || value < 0 || value > 1) throw new ChatError('invalid_volume')
+    const config = this.settings(); if (!config) throw new ChatError('speech_not_configured')
+    config.volume = value; writeSettings(this.configFile, config)
+  }
+  snapshot() { const c = this.settings(); return { configured: !!c, enabled: !!this.config(), volume: Number.isFinite(c?.volume) ? Math.max(0, Math.min(1, c.volume)) : 0.7, busy: this.busy, service: this.service, lastError: this.error, engine: 'GPT-SoVITS', language: c?.textLanguage === 'ja' ? 'ja' : 'zh' } }
+  async checkService() {
+    if (this.probing) return this.probing
+    this.service = 'checking'
+    this.probing = Promise.resolve().then(async () => {
+      try {
+        const response = await this.fetch('http://127.0.0.1:9880/openapi.json', { redirect: 'error', signal: AbortSignal.timeout(this.probeTimeoutMs) })
+        if (!response.ok) { this.service = 'incompatible'; return }
+        const schema = await response.json()
+        this.service = schema?.paths?.['/tts']?.post ? 'ready' : 'incompatible'
+      } catch { this.service = 'offline' }
+    }).finally(() => { this.probing = null })
+    return this.probing
+  }
   async speak(text, ctx) {
     const config = this.config(); if (!config) return false
     if (this.blocked) { this.error = '上一轮语音超时，本次进程已暂停语音。请重启语音服务和桌宠后再试。'; return false }
@@ -37,7 +56,9 @@ export class LocalSpeech {
       const data = Buffer.concat(parts)
       if (!current()) return false
       if (data.toString('ascii', 0, 4) !== 'RIFF' || data.toString('ascii', 8, 12) !== 'WAVE') throw Error('invalid speech')
-      const reply = await ctx.command('audio', { wav: data.toString('base64'), volume: Number.isFinite(config.volume) ? Math.max(0, Math.min(1, config.volume)) : 0.7 })
+      this.service = 'ready'
+      const volume = this.settings()?.volume ?? config.volume
+      const reply = await ctx.command('audio', { wav: data.toString('base64'), volume: Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.7 })
       if (reply.status !== 'completed') throw Error('playback failed')
       // Playback completion is observed through the body, not inferred from byte count.
       for (let elapsed = 0; elapsed < 35000 && current(); elapsed += 500) {

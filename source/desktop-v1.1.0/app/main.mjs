@@ -536,6 +536,8 @@ async function callStageRpc(op, payload) {
       else if (command === 'models') await chat.provider.loadModels()
       else if (command === 'model') { chat.resetIdentity(); chat.provider.select(payload?.model) }
       else if (command === 'voice') { if (payload?.value === false) kernel.cancel(); chat.speech.setEnabled(payload?.value); broadcastSettings() }
+      else if (command === 'voice-status') await chat.speech.checkService()
+      else if (command === 'volume') { chat.speech.setVolume(payload?.value); await callStageRpc('body:volume', { value: payload.value }) }
       else if (command === 'manage-usage') await shell.openExternal('https://chatgpt.com/settings/usage')
       else if (command !== 'snapshot') {
         if (!kernelEnabled || kernelMode !== 'chatgpt-plan') return { ok: false, error: '请先开启文字对话。' }

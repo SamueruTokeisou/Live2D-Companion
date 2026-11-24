@@ -75,3 +75,19 @@ test('body cancellation fences deferred playback and stops owned audio', async (
   assert.equal((await pending).status, 'cancelled'); assert.equal(plays, 0); assert.equal(stops, 3)
   assert.equal((await port.execute({ taskId: 'new', generation: 2, commandId: 'new/1', kind: 'audio', payload: { wav: 'test', volume: 2 } })).status, 'failed')
 })
+import {mkdtempSync,writeFileSync,readFileSync,unlinkSync,rmdirSync,existsSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import path from 'node:path'
+test('volume persists without changing reference, language or enabled state; invalid values do not write',t=>{
+ const root=mkdtempSync(path.join(tmpdir(),'companion-volume-')),file=path.join(root,'active.json'),reference=path.join(root,'reference.wav');writeFileSync(reference,'fixture')
+ t.after(()=>{for(const f of [file,file+'.bak',reference])if(existsSync(f))unlinkSync(f);rmdirSync(root)})
+ const config={schemaVersion:1,enabled:false,reference,promptText:'private reference text',textLanguage:'zh',volume:.7};writeFileSync(file,JSON.stringify(config));const instance=new LocalSpeech({configFile:file});assert.ok(instance.snapshot().configured);assert.equal(instance.config(),null)
+ instance.setVolume(.25);assert.equal(instance.snapshot().volume,.25);const actual=JSON.parse(readFileSync(file));assert.equal(actual.reference,reference);assert.equal(actual.promptText,config.promptText);assert.equal(actual.enabled,false);assert.equal(actual.textLanguage,'zh');const before=readFileSync(file,'utf8');for(const value of [-1,1.01,NaN,'0.5'])assert.throws(()=>instance.setVolume(value),{code:'invalid_volume'});assert.equal(readFileSync(file,'utf8'),before);assert.doesNotMatch(JSON.stringify(instance.snapshot()),/private reference text|reference.wav/)
+})
+test('service check is read-only, single-flight and can be checked again',async()=>{
+ let finish,calls=0;const instance=speech((url,init)=>{calls++;assert.equal(url,'http://127.0.0.1:9880/openapi.json');assert.equal(init.body,undefined);assert.equal(init.redirect,'error');return new Promise(resolve=>finish=resolve)})
+ const a=instance.checkService(),b=instance.checkService();assert.equal(instance.snapshot().service,'checking');await Promise.resolve();assert.equal(calls,1);finish(Response.json({paths:{'/tts':{post:{}}}}));await Promise.all([a,b]);assert.equal(instance.snapshot().service,'ready');const again=instance.checkService();await Promise.resolve();assert.equal(calls,2);finish(Response.json({paths:{}}));await again;assert.equal(instance.snapshot().service,'incompatible')
+})
+test('service check reports connection failure and recovers on explicit retry',async()=>{let calls=0;const instance=speech(()=>{if(++calls===1)throw Error('offline');return Promise.resolve(Response.json({paths:{'/tts':{post:{}}}}))});await instance.checkService();assert.equal(instance.snapshot().service,'offline');await instance.checkService();assert.equal(instance.snapshot().service,'ready')})
+test('service check has a finite timeout without running synthesis',async()=>{const instance=speech((url,init)=>new Promise((resolve,reject)=>init.signal.addEventListener('abort',()=>reject(init.signal.reason))));instance.probeTimeoutMs=5;const keep=setTimeout(()=>{},100);try{await instance.checkService();assert.equal(instance.snapshot().service,'offline')}finally{clearTimeout(keep)}})
+test('volume changed while synthesis is pending applies to the arriving audio',async()=>{let finish;const instance=speech(()=>new Promise(resolve=>finish=resolve)),ctx=context();instance.settings=()=>({volume:.1});const pending=instance.speak('fixture',ctx);finish(new Response(wav));await pending;assert.equal(ctx.commands[0].payload.volume,.1)})

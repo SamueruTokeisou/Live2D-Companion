@@ -100,7 +100,12 @@ export function installBodyPort(shell = window.shell, presentation = null) {
     document.body.append(overlay); timer = setTimeout(() => { clearText(); if (!['playing', 'starting'].includes(audioState)) presentation?.setFace('idle') }, durationMs)
   } })
   window.__companionBody = (op, payload) => {
-    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay, audioState, audioPrepared: !!context, audioWarmupMs, playbackTiming, presentation: presentation?.snapshot() || null }
+    if (op === 'volume') {
+      if (!Number.isFinite(payload?.value) || payload.value < 0 || payload.value > 1) return { status: 'failed' }
+      if (audio) audio.volume = payload.value
+      return { status: 'completed' }
+    }
+    if (op === 'snapshot') return { generation: port.generation, taskId: port.taskId, closed: port.closed, textVisible: !!overlay, audioState, audioVolume: audio?.volume ?? null, audioPrepared: !!context, audioWarmupMs, playbackTiming, presentation: presentation?.snapshot() || null }
     if (op === 'capabilities') return { protocol: 1, commands: [...port.capabilities], emotion: [], gaze: false, gestures: [] }
     if (op === 'begin') return port.begin(payload)
     if (op === 'execute') return port.execute(payload)

@@ -2,6 +2,8 @@ import { ChatError } from './chat-errors.mjs'
 import { localHandler } from './event-kernel.mjs'
 
 export const CHAT_ERRORS = {
+  speech_not_configured: '语音参考未配置完整，请先检查本机语音设置；文字聊天仍可使用。',
+  invalid_volume: '音量必须在0%到100%之间。',
   signin_required: '请点击 Continue with ChatGPT 登录。',
   signin_pending: '请在官方浏览器页面完成登录与授权。',
   plan_permission_required: '尚未获得套餐使用授权，请重新登录并授权。',

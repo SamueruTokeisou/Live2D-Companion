@@ -15,3 +15,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Do not start subagents, broadcasts, recurring automation or new paid services without applicable owner authorization.
 
 - Current owner preference: develop, test and save versions locally. Do not push to GitHub or create PRs unless the owner explicitly requests it again.
+
+- The owner removed Haru. Do not import, restore, download or launch Haru/sample characters for default acceptance. Use the current DeepSeek character; generic logic uses synthetic unit fixtures unless the owner explicitly selects another model.

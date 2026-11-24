@@ -49,7 +49,7 @@ def install(root=ROOT):
     for directory in ['models', 'profiles', 'data']:
         (root / directory).mkdir(exist_ok=True)
     (root / 'data/install.json').write_text(json.dumps({
-        'upstream': URL, 'sha256': SHA256, 'localVersion': '0.4.5-dev',
+        'upstream': URL, 'sha256': SHA256, 'localVersion': '0.4.6-dev',
         'python': sys.version.split()[0]
     }, indent=2), encoding='utf-8')
     print('Installed. Use Start.cmd to open the role manager; import your own model.')
