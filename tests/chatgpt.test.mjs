@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { generateKeyPairSync, sign, createHash } from 'node:crypto'
-import { ChatGptAuth, validateIdentity, ProtectedAccountStore } from '../source/desktop-v1.1.0/app/kernel/chatgpt-auth.mjs'
-import { ChatGptProvider } from '../source/desktop-v1.1.0/app/kernel/chatgpt-provider.mjs'
+import { ChatGptAuth, validateIdentity, ProtectedAccountStore } from '../companion/kernel/chatgpt-auth.mjs'
+import { ChatGptProvider } from '../companion/kernel/chatgpt-provider.mjs'
 const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
 const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'test-key', use: 'sig' }
 const scopes = 'resource.invoke chatgpt.tokens.use.direct'

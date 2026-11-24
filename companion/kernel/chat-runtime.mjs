@@ -2,6 +2,11 @@ import { ChatError } from './chat-errors.mjs'
 import { localHandler } from './event-kernel.mjs'
 
 export const CHAT_ERRORS = {
+  voice_control_unavailable: '本机语音控制入口未准备好，请用角色管理器启动桌宠，并检查语音环境是否安装。',
+  voice_operation_busy: '语音服务正在启停，请等当前操作完成后再试。',
+  voice_operation_invalid: '不支持的语音服务操作。',
+  speech_not_configured: '语音参考未配置完整，请先检查本机语音设置；文字聊天仍可使用。',
+  invalid_volume: '音量必须在0%到100%之间。',
   signin_required: '请点击 Continue with ChatGPT 登录。',
   signin_pending: '请在官方浏览器页面完成登录与授权。',
   plan_permission_required: '尚未获得套餐使用授权，请重新登录并授权。',
@@ -12,6 +17,7 @@ export const CHAT_ERRORS = {
   output_limit: '达到本地500字符上限，已停止；本轮未完成。',
   account_changed: '账号已切换，本轮已停止。',
   secure_storage_unavailable: 'Windows安全存储不可用，未保存登录信息。',
+  credentials_unreadable: '无法读取本机加密登录信息，原记录已保留。请检查登录存储，不要删除账号文件。',
   signin_failed: '登录未完成，请重新尝试。',
   signin_timeout: '登录等待超时，请重新登录。',
   consent_declined: '本次没有获得授权，可以重新登录。',

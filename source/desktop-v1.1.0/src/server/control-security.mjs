@@ -22,7 +22,7 @@ export function trustedRequest(req, port) {
   try { return req.url?.startsWith('/') && new URL(req.url, origin).origin === origin } catch { return false }
 }
 const RUNTIME_RPC = new Set(['meta', 'catalog', 'regions', 'local:ping', 'local:health', 'local:visibility', 'local:quit', 'local:settings', 'local:chat', 'local:kernel',
-  'chat:snapshot', 'chat:enable', 'chat:send', 'chat:stop', 'chat:clear', 'chat:voice',
+  'chat:snapshot', 'chat:enable', 'chat:send', 'chat:stop', 'chat:clear', 'chat:voice', 'chat:volume', 'chat:voice-status', 'chat:voice-service',
   'kernel:snapshot', 'kernel:capabilities', 'kernel:enable', 'kernel:event', 'kernel:cancel', 'kernel:pause', 'kernel:quiet', 'kernel:timer',
   'body:snapshot', 'body:capabilities'])
 export const allowedRpc = (op, development = false) => typeof op === 'string' && (RUNTIME_RPC.has(op) || development)

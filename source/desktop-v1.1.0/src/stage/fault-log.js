@@ -25,9 +25,18 @@ const clip = (s, n) => (String(s || '').length > n ? String(s).slice(0, n) + '�
  * @param {{ send?: (kind: string, detail: object) => void, info?: object, limit?: number }} opts
  * @returns {{ push: Function, list: Function, snapshot: Function, destroy: Function }}
  */
-export function createFaultLog({ send, info = {}, limit = MAX } = {}) {
+export function createFaultLog({ send, info = {}, limit = MAX, context = () => ({}), now = () => performance.now() } = {}) {
   const rows = []
-  const created = performance.now()
+  const created = now()
+  const longTasks = []
+  let observer = null
+  if (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes?.includes('longtask')) {
+    observer = new PerformanceObserver(list => {
+      for (const entry of list.getEntries()) longTasks.push({ start: entry.startTime, duration: entry.duration })
+      if (longTasks.length > 8) longTasks.splice(0, longTasks.length - 8)
+    })
+    observer.observe({ type: 'longtask' })
+  }
   let muted = false   // 自己记故障时别再触发 console 钩子（会无限套娃）
 
   const push = (kind, detail = {}) => {
@@ -69,12 +78,15 @@ export function createFaultLog({ send, info = {}, limit = MAX } = {}) {
   let lastFrame = 0
   let lastStallAt = 0
   const frameGap = (ts) => {
-    if (document.hidden || performance.now() - created < 8000) { lastFrame = 0; return }
+    if (document.hidden || now() - created < 8000) { lastFrame = 0; return }
     if (lastFrame && ts - lastFrame > 120) {
-      const now = performance.now()
-      if (now - lastStallAt > 5000) {   // 同一波卡顿只记一条
-        lastStallAt = now
-        push('frame:stall', { gapMs: +(ts - lastFrame).toFixed(1) })
+      const at = now()
+      if (at - lastStallAt > 5000) {   // 同一波卡顿只记一条
+        lastStallAt = at
+        let detail = {}
+        try { detail = context() } catch {}
+        push('frame:stall', { gapMs: +(ts - lastFrame).toFixed(1), ...detail,
+          recentLongTasksMs: longTasks.filter(t => at - t.start < 1000).map(t => +t.duration.toFixed(1)) })
       }
     }
     lastFrame = ts
@@ -89,6 +101,7 @@ export function createFaultLog({ send, info = {}, limit = MAX } = {}) {
     /** 导出时给主进程用：最近 40 条 + 环境信息（正常导出走主进程，这里只是兜底） */
     snapshot: () => ({ ...info, incidents: rows.slice(-40) }),
     destroy() {
+      observer?.disconnect()
       window.removeEventListener('error', onError)
       window.removeEventListener('unhandledrejection', onRejection)
       console.error = origError

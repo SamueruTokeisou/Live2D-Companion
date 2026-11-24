@@ -3,7 +3,8 @@ import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 const { createNativeCore } = require('./index.cjs')
 const core = createNativeCore()
-const MODEL = 'C:/Users/33153/Desktop/DeepSeek免费公皮/DeepSeek/_opt2048/大肥鱼.moc3'
+const MODEL = process.env.CUBISM_TEST_MODEL || ''
+if (!MODEL) throw new Error('Set CUBISM_TEST_MODEL to a local licensed moc3 file')
 const b = fs.readFileSync(MODEL)
 const ab = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)
 const m = core.Model.fromMoc(core.Moc.fromArrayBuffer(ab))

@@ -3,12 +3,16 @@
   const checks = [];
   const add = (name, pass, detail) => checks.push({ name, pass: !!pass, detail });
   const meta = await __stageRpc('meta');
-  add('第二角色加载', Live2DStage.generic && meta.model === 'Haru', { model: meta.model, params: Live2DStage.stage.param.count });
-  add('表情读取与去重', meta.exprs.length === 8 && new Set(meta.exprs).size === 8, meta.exprs);
-  const result = await __stageRpc('expr', { name: 'F02' });
-  await wait(500);
-  add('通用表情', result.active.exprs.includes('F02'), result.active);
-  await __stageRpc('exprClear');
+  if (!Live2DStage.generic) throw new Error('Only run explicitly on an owner-selected generic model; do not import a sample automatically');
+  add('已选择的通用角色加载', Live2DStage.generic && !!meta.model, { model: meta.model, params: Live2DStage.stage.param.count });
+  add('表情读取与去重', new Set(meta.exprs).size === meta.exprs.length, meta.exprs);
+  if (meta.exprs.length) {
+    const selected = meta.exprs[0];
+    const result = await __stageRpc('expr', { name: selected });
+    await wait(500);
+    add('模型已有表情', result.active.exprs.includes(selected), result.active);
+    await __stageRpc('exprClear');
+  }
   const el = document.querySelector('#stage');
   el.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 190, clientY: 190, bubbles: true }));
   await wait(150);

@@ -13,3 +13,11 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - Normal use must not open a debugging port. Temporary acceptance uses 9237; restart normally afterward.
 - Use appropriate tests. UI/audio/GPU/sleep/long-running claims need observations, not syntax checks or a surviving process. Update public documents with actual behavior and limits.
 - Do not start subagents, broadcasts, recurring automation or new paid services without applicable owner authorization.
+
+- Current owner preference: develop, test and save versions locally. Do not push to GitHub or create PRs unless the owner explicitly requests it again.
+
+- The owner removed Haru. Do not import, restore, download or launch Haru/sample characters for default acceptance. Use the current DeepSeek character; generic logic uses synthetic unit fixtures unless the owner explicitly selects another model.
+
+- Work autonomously within the selected scope and keep progress/final reports concise. Avoid redundant reads, model calls and repeated checks after passing validation; preserve the same implementation and verification standard.
+
+- Own runtime modules live in companion/. source/desktop-v1.1.0 is the maintained upstream-derived integration/engine tree. Update tools/setup.py for both source roots. See docs/public/BUILD.md and upstream/README.md; CI verifies upstream provenance.

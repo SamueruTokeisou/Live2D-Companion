@@ -2,6 +2,7 @@
 import { createStage } from '../src/stage/engine.js';
 import { createViewport } from '../src/stage/viewport.js';
 import { createLayerStack } from '../src/stage/layers.js';
+import { createFaultLog } from '../src/stage/fault-log.js';
 
 export async function startGeneric(shell, settings, caps) {
   const stage = await createStage({ container: document.querySelector('#stage'), modelUrl: caps.model.url });
@@ -9,7 +10,11 @@ export async function startGeneric(shell, settings, caps) {
   viewport.observe(document.querySelector('#stage'));
   const layers = createLayerStack({ param: stage.param, part: stage.part });
   let cfg = settings, active = [], look = { x: 0, y: 0 }, touchUntil = 0, nextBlink = 0, blinkAt = -10000;
-  const faults = [], history = [];
+  const history = [];
+  const faults = createFaultLog({ send: (kind, detail) => shell.fault?.(kind, detail),
+    context: () => ({ frameCostMs: stage.frameLoop.info().costMs, audioState: window.__companionBody?.('snapshot')?.audioState }) });
+  stage.frameLoop.onFrame(faults.frameGap);
+  window.addEventListener('pagehide', () => faults.destroy(), { once: true });
   const put = (id, value) => {
     const p = stage.param.info(id);
     if (p) stage.param.set(id, Math.max(p.min, Math.min(p.max, value)));
@@ -54,7 +59,7 @@ export async function startGeneric(shell, settings, caps) {
   }
   stage.onBeforeUpdate(update);
   await stage.frameLoop.start({ fps: cfg.targetFps === 60 ? 60 : 30 });
-  shell.onStageActive?.(on => on ? stage.frameLoop.wake() : stage.frameLoop.halt());
+  shell.onStageActive?.(on => { faults.resetFrameClock(); on ? stage.frameLoop.wake() : stage.frameLoop.halt(); });
   shell.onSettings?.(next => { cfg = next; stage.frameLoop.setFps(cfg.targetFps === 60 ? 60 : 30); });
   shell.onCursor?.(p => {
     look.x = Math.max(-1, Math.min(1, (p.x - innerWidth / 2) / Math.max(200, innerWidth)));
@@ -105,9 +110,7 @@ export async function startGeneric(shell, settings, caps) {
     return { error: '此角色使用通用模式，该专属操作尚未适配。' };
   };
   window.__probe = { frameInfo: () => stage.frameLoop.info(), zones: () => ({ count: 0, generic: true }), history: () => history };
-  window.Live2DStage = { stage, faults: () => faults, generic: true };
-  window.addEventListener('error', e => faults.push({ kind: 'error', message: e.message }));
-  window.addEventListener('unhandledrejection', e => faults.push({ kind: 'rejection', message: String(e.reason) }));
+  window.Live2DStage = { stage, faults: () => faults.list(), generic: true };
   stage.canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); if (!sessionStorage.genericRecovery) { sessionStorage.genericRecovery = '1'; setTimeout(() => location.reload(), 500); } });
   document.title = `stage · ${caps.model.name} · 通用模式`;
   return stage;

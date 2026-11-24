@@ -1,0 +1,855 @@
+{
+  "archive": "https://github.com/FULASKA/-live2d-/releases/download/v1.1.0/live2d-stage-src-v1.1.0.zip",
+  "sha256": "dbcd141bcaf41a20dd95fd4af4ce649338f777cf6563105fa117cfb66f85b8b1",
+  "license": "MIT",
+  "files": {
+    ".gitignore": {
+      "kind": "upstream-unchanged",
+      "sha256": "7b79a3e9f346a857d50e1ea5fbe52a42f276d044018412e9d4b86f5f7c476b84",
+      "normalizedSha256": "7b79a3e9f346a857d50e1ea5fbe52a42f276d044018412e9d4b86f5f7c476b84"
+    },
+    "LICENSE": {
+      "kind": "upstream-unchanged",
+      "sha256": "609bae767d79e89822f63402a55b97e1c9b17e8c2758a9c5a0cadacc2e14ffb7",
+      "normalizedSha256": "609bae767d79e89822f63402a55b97e1c9b17e8c2758a9c5a0cadacc2e14ffb7"
+    },
+    "README.md": {
+      "kind": "upstream-modified",
+      "sha256": "abe67a500c4c5ef897cc1c7907883f641ac1fd03f038ecc07d3cf96465a3e0b8",
+      "normalizedSha256": "4eb670d761dbc00a9f053dadad6f49c4e07c20e12b8a60efd1ded4e9979eb5b7"
+    },
+    "app/chat-panel.html": {
+      "kind": "companion-integration"
+    },
+    "app/chat-panel.js": {
+      "kind": "companion-integration"
+    },
+    "app/editor.css": {
+      "kind": "upstream-unchanged",
+      "sha256": "b253d1defdc8d5b3db466a04a16b76939f4d4d780a2598857cd84eecf530f497",
+      "normalizedSha256": "b253d1defdc8d5b3db466a04a16b76939f4d4d780a2598857cd84eecf530f497"
+    },
+    "app/editor.html": {
+      "kind": "upstream-unchanged",
+      "sha256": "f41a7d9f5c03c0525ebf9157d4a3efe06dfe1f8220269d99ac923a007d1cc091",
+      "normalizedSha256": "f41a7d9f5c03c0525ebf9157d4a3efe06dfe1f8220269d99ac923a007d1cc091"
+    },
+    "app/editor.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "c171c7fc16749d51c45d5c0e03bbbbc1b505ac2d245275b20c953c8e57213df6",
+      "normalizedSha256": "c171c7fc16749d51c45d5c0e03bbbbc1b505ac2d245275b20c953c8e57213df6"
+    },
+    "app/firstrun.html": {
+      "kind": "upstream-unchanged",
+      "sha256": "a5cd9420c32bc1ce670a125c5adcd21c24347550a42501e58bbc36c87786eb3b",
+      "normalizedSha256": "a5cd9420c32bc1ce670a125c5adcd21c24347550a42501e58bbc36c87786eb3b"
+    },
+    "app/generic.js": {
+      "kind": "companion-integration"
+    },
+    "app/index.html": {
+      "kind": "upstream-unchanged",
+      "sha256": "a52b7bdb78076db7ceef1ed8135a8fd3831bca40c075834ec9670cd62c4eca5c",
+      "normalizedSha256": "a52b7bdb78076db7ceef1ed8135a8fd3831bca40c075834ec9670cd62c4eca5c"
+    },
+    "app/kernel-panel.html": {
+      "kind": "companion-integration"
+    },
+    "app/kernel-panel.js": {
+      "kind": "companion-integration"
+    },
+    "app/main.mjs": {
+      "kind": "upstream-modified",
+      "sha256": "bcac7bddb414fd37020fd651dcb6271948c736eb8a58ea4d1233b111addb7b5c",
+      "normalizedSha256": "efa5805456602e2124d4346293939b21909103074bc39bf087e8edf42ec5a98b"
+    },
+    "app/optimizing.html": {
+      "kind": "upstream-unchanged",
+      "sha256": "ab39725b180cdc6b4b1e98299e4ea7ee4ab8fe5c059e9517548dc218b241bd79",
+      "normalizedSha256": "ab39725b180cdc6b4b1e98299e4ea7ee4ab8fe5c059e9517548dc218b241bd79"
+    },
+    "app/preload.cjs": {
+      "kind": "upstream-modified",
+      "sha256": "83ce28b6dd5dc7cf2b0c44957b37c44b04b2bd6b4d4caa64d9492cec4727866a",
+      "normalizedSha256": "d3000a9225918616ad1e10085876a4383046e150ee8dccb50a98acb9ebbb7613"
+    },
+    "app/renderer.js": {
+      "kind": "upstream-modified",
+      "sha256": "d56df8e7dd1768821bf9530e05b08a46190faf48b34e65ee08cf09b52e208084",
+      "normalizedSha256": "6bde1f88090069d8df6e701c5cb68cfc83f786b8b1df5726e3f0785ad06b2b87"
+    },
+    "app/settings.css": {
+      "kind": "upstream-unchanged",
+      "sha256": "20d08e3d319880db5efaac91021f2c40f65e8df1d94fd0469bb743e714f4f45f",
+      "normalizedSha256": "20d08e3d319880db5efaac91021f2c40f65e8df1d94fd0469bb743e714f4f45f"
+    },
+    "app/settings.html": {
+      "kind": "upstream-modified",
+      "sha256": "49227aeb9d7b3904d10a53681dee558cd3d2dd7ee8e90bebc1599ca996d02a8f",
+      "normalizedSha256": "49227aeb9d7b3904d10a53681dee558cd3d2dd7ee8e90bebc1599ca996d02a8f"
+    },
+    "app/settings.js": {
+      "kind": "upstream-modified",
+      "sha256": "1fb2e7288a76f29be2add9f43e28aa6fb7753375072a8e15c19c698d9678c626",
+      "normalizedSha256": "1fb2e7288a76f29be2add9f43e28aa6fb7753375072a8e15c19c698d9678c626"
+    },
+    "app/style.css": {
+      "kind": "upstream-unchanged",
+      "sha256": "bbcfa63ba184bf349abd8e95c3bdf1ab89fa223d3a13cf31c93f18cbb43d3d46",
+      "normalizedSha256": "5723195eebb4dc9d075b3cccdd54262b0e524d6c791e5f5b767c71b23f84838f"
+    },
+    "app/theme.css": {
+      "kind": "upstream-unchanged",
+      "sha256": "572386a552e9961b9eb44966b0d80472c40c586e7a0f45b7f9742c1bc9d22fce",
+      "normalizedSha256": "572386a552e9961b9eb44966b0d80472c40c586e7a0f45b7f9742c1bc9d22fce"
+    },
+    "app/theme.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "c8591a00c44b14305ed9f285ef453fc69981973a683522e9dec300f5d2156676",
+      "normalizedSha256": "c8591a00c44b14305ed9f285ef453fc69981973a683522e9dec300f5d2156676"
+    },
+    "docs/EXTENDING.md": {
+      "kind": "upstream-modified",
+      "sha256": "98e1d071f5d71e8c38902292e271311311b335a67d96b0dcd02cf0e1dee63b17",
+      "normalizedSha256": "98e1d071f5d71e8c38902292e271311311b335a67d96b0dcd02cf0e1dee63b17"
+    },
+    "docs/PARAMS.md": {
+      "kind": "upstream-modified",
+      "sha256": "f1db3b55c082ef93c4362c3d6722cd461a714a7095fe81fe0f27822bab56b265",
+      "normalizedSha256": "f1db3b55c082ef93c4362c3d6722cd461a714a7095fe81fe0f27822bab56b265"
+    },
+    "docs/PERF-RESEARCH.md": {
+      "kind": "upstream-modified",
+      "sha256": "ea802ef58d3a376bbc79ea7c890fa6644d90e6faf927d3a82f71f85015297c2a",
+      "normalizedSha256": "ea802ef58d3a376bbc79ea7c890fa6644d90e6faf927d3a82f71f85015297c2a"
+    },
+    "docs/PROTOCOL.md": {
+      "kind": "upstream-modified",
+      "sha256": "1115a89592e7c56e0e7bc8e25b625c9b30188f362211e049e6bc8cf54a12273d",
+      "normalizedSha256": "e8afdacdee767b0d51c81302cbd4fc5dba6332a9dc2bfedd9397a8c2a7aa9e9e"
+    },
+    "docs/REGIONS.md": {
+      "kind": "upstream-modified",
+      "sha256": "becaca686e1e3e3df26ba2f0cd753d363a425731d5ff1463520df3164e7f174c",
+      "normalizedSha256": "becaca686e1e3e3df26ba2f0cd753d363a425731d5ff1463520df3164e7f174c"
+    },
+    "docs/SPEC.md": {
+      "kind": "upstream-modified",
+      "sha256": "2075fb17c6bb67d50fca15a7908a5068e5c9c9d3314ea98870ccb6c507b6952f",
+      "normalizedSha256": "019fd1259d2c3f903d643efb2622e25cb83132be8308e18378fb2b56f30e1c06"
+    },
+    "docs/TECH-ROUTE.md": {
+      "kind": "upstream-modified",
+      "sha256": "7473b000ae4bf7246e1c83fef37ecd4d8c75b6e2b9cbafb670224e19a9f10770",
+      "normalizedSha256": "7473b000ae4bf7246e1c83fef37ecd4d8c75b6e2b9cbafb670224e19a9f10770"
+    },
+    "docs/故障排查.md": {
+      "kind": "upstream-modified",
+      "sha256": "383f132e62c8e64733acf0bb5479624970520b49220c67057bff1298a1f70963",
+      "normalizedSha256": "383f132e62c8e64733acf0bb5479624970520b49220c67057bff1298a1f70963"
+    },
+    "docs/教程-自己做一个Live2D桌宠.md": {
+      "kind": "upstream-modified",
+      "sha256": "fec9f5f04703bd3cb551958c9fe3aa606b56c4d2035b0f9f5332b54bc3daabcc",
+      "normalizedSha256": "fec9f5f04703bd3cb551958c9fe3aa606b56c4d2035b0f9f5332b54bc3daabcc"
+    },
+    "extensions/example-actions.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "354fafeb1825d9b8cbfcb80720ea7576f7192de5f45b2c64f8ab3f714085c9e2",
+      "normalizedSha256": "354fafeb1825d9b8cbfcb80720ea7576f7192de5f45b2c64f8ab3f714085c9e2"
+    },
+    "extensions/example-lipsync.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "f47f595b47a3eca22fa977846e4d59616b7532ef505381bdebf4cc9e2cd4ff4f",
+      "normalizedSha256": "f47f595b47a3eca22fa977846e4d59616b7532ef505381bdebf4cc9e2cd4ff4f"
+    },
+    "extensions/example-variants.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "c973d4920bfdcdf77ac510efdd7516b2d5ec7f66cd4673198928b6c58b3b5625",
+      "normalizedSha256": "c973d4920bfdcdf77ac510efdd7516b2d5ec7f66cd4673198928b6c58b3b5625"
+    },
+    "native/cubism-core/README.md": {
+      "kind": "upstream-unchanged",
+      "sha256": "750dbc5a2a6ee48ec86403a48afbda14e51c1e531b79dbb88c34f30cd35dfef6",
+      "normalizedSha256": "750dbc5a2a6ee48ec86403a48afbda14e51c1e531b79dbb88c34f30cd35dfef6"
+    },
+    "native/cubism-core/binding.gyp": {
+      "kind": "upstream-unchanged",
+      "sha256": "544e58b47e382d96de2fd32c5e9a31324e626d5f688372ffea029ccb8c34fd58",
+      "normalizedSha256": "544e58b47e382d96de2fd32c5e9a31324e626d5f688372ffea029ccb8c34fd58"
+    },
+    "native/cubism-core/build-mingw.sh": {
+      "kind": "upstream-modified",
+      "sha256": "33c290a94ed2496d87ab03d70d592f0b429e9cc405fec2d41bc72426848701d1",
+      "normalizedSha256": "33c290a94ed2496d87ab03d70d592f0b429e9cc405fec2d41bc72426848701d1"
+    },
+    "native/cubism-core/cubism_core.cc": {
+      "kind": "upstream-unchanged",
+      "sha256": "617aaa263a5aefb696b1dec067e2b26c62330feb86722a41cd6ace1c7f361860",
+      "normalizedSha256": "82efd3c6afd36c08759e226fee27ea9bf553875936b4b7c8d16356e7ffc37606"
+    },
+    "native/cubism-core/index.cjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "93aab9ae24d94af7ea885ba6280977c7b62382b9c7203e395b4ab789fb39c585",
+      "normalizedSha256": "93aab9ae24d94af7ea885ba6280977c7b62382b9c7203e395b4ab789fb39c585"
+    },
+    "native/cubism-core/package.json": {
+      "kind": "upstream-unchanged",
+      "sha256": "cf9c1991eef3c3737022072e09ad84c0e4c0439c2eb2ba3f2e251a58a597f8a9",
+      "normalizedSha256": "cf9c1991eef3c3737022072e09ad84c0e4c0439c2eb2ba3f2e251a58a597f8a9"
+    },
+    "native/cubism-core/test.mjs": {
+      "kind": "upstream-modified",
+      "sha256": "4d0aef3360ade4ecd0fb6b3c276f151d33b6733e4df89a78c7c57df4ac10a28a",
+      "normalizedSha256": "4d0aef3360ade4ecd0fb6b3c276f151d33b6733e4df89a78c7c57df4ac10a28a"
+    },
+    "native/cubism-core/tmp-roundtrip.mjs": {
+      "kind": "upstream-modified",
+      "sha256": "9378c8fdf6f070aca819fc3b0ccce0fd140de0aee41fa704390bd5b9358c2f1e",
+      "normalizedSha256": "9378c8fdf6f070aca819fc3b0ccce0fd140de0aee41fa704390bd5b9358c2f1e"
+    },
+    "package-lock.json": {
+      "kind": "upstream-unchanged",
+      "sha256": "8becd42b85e5402ddc7f5cd09d818a630d7b5e05a1b75ffd9ca78e66a8c54e58",
+      "normalizedSha256": "8becd42b85e5402ddc7f5cd09d818a630d7b5e05a1b75ffd9ca78e66a8c54e58"
+    },
+    "package.json": {
+      "kind": "upstream-unchanged",
+      "sha256": "35b73eec14e61ea43e1b6368fed0b042bebf09e860e8a44811c45d9a0a8fca59",
+      "normalizedSha256": "35b73eec14e61ea43e1b6368fed0b042bebf09e860e8a44811c45d9a0a8fca59"
+    },
+    "scripts/fetch-core.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "c87fa3541581dd7fa469388a6b320701a25ee8b7187a86622e9e484c28e9f90f",
+      "normalizedSha256": "c87fa3541581dd7fa469388a6b320701a25ee8b7187a86622e9e484c28e9f90f"
+    },
+    "scripts/pack.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "6db5a58419d12170179f213e0edfcbd9b55418f2dba07bf2235a7c3cab9cefee",
+      "normalizedSha256": "6db5a58419d12170179f213e0edfcbd9b55418f2dba07bf2235a7c3cab9cefee"
+    },
+    "scripts/release.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "a9ed61941fdd311d1af8289e26cdae8d686c9372a22badce8f37d35b4911bee7",
+      "normalizedSha256": "a9ed61941fdd311d1af8289e26cdae8d686c9372a22badce8f37d35b4911bee7"
+    },
+    "scripts/serve.mjs": {
+      "kind": "upstream-modified",
+      "sha256": "6d3e70b3cdaeebb307976f070f48a5a9aa68cb95f2a3467e3ae49849305603b1",
+      "normalizedSha256": "6d3e70b3cdaeebb307976f070f48a5a9aa68cb95f2a3467e3ae49849305603b1"
+    },
+    "scripts/shortcut.ps1": {
+      "kind": "upstream-unchanged",
+      "sha256": "8d3b8a37208652a71ad6caef9057b4e3ab911c003e54e6e3c7502239a7038212",
+      "normalizedSha256": "8d3b8a37208652a71ad6caef9057b4e3ab911c003e54e6e3c7502239a7038212"
+    },
+    "scripts/shot.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "b9e2d6ee4d2acd7885be5790dcbc98d0401a86e715997be7c3a00ecb5d5acf90",
+      "normalizedSha256": "b9e2d6ee4d2acd7885be5790dcbc98d0401a86e715997be7c3a00ecb5d5acf90"
+    },
+    "src/server/control-security.mjs": {
+      "kind": "companion-integration"
+    },
+    "src/server/stage-server.mjs": {
+      "kind": "upstream-modified",
+      "sha256": "199ac8a029c65916f28bfb57c7dbaae3b5a156079630f871c578a3b8a61fb4e5",
+      "normalizedSha256": "cfcb95e6fc7b7910046185f7c6f0a05617cd928f94c62002873fdb117009cd1a"
+    },
+    "src/stage/action-presets.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "2e068b2caed12158a334618669cfb09ff5daa4d2d3770794cb5a926711624c3a",
+      "normalizedSha256": "2e068b2caed12158a334618669cfb09ff5daa4d2d3770794cb5a926711624c3a"
+    },
+    "src/stage/agent-link.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3286a349d626d45503fa4d7378670953000f3b71c4078952d2cc4ea2451e46ff",
+      "normalizedSha256": "3286a349d626d45503fa4d7378670953000f3b71c4078952d2cc4ea2451e46ff"
+    },
+    "src/stage/agent/intent.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "903d6aed3bc54d151152d227e92723bf79d937391b2572a57097fbf6a3f2ca63",
+      "normalizedSha256": "f234ce14a3cbf9ed297e07c0379aba70d988b685bfb3ae14f8e75ea9d758ff1d"
+    },
+    "src/stage/bubble.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "2d65d0f2ef3e14e0601bbf42abf7629c60523565c9da0acb4c9ee7b08718fe2c",
+      "normalizedSha256": "2d65d0f2ef3e14e0601bbf42abf7629c60523565c9da0acb4c9ee7b08718fe2c"
+    },
+    "src/stage/capture.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "bec61abcda63a2334ecbee90a4a930316c118081183cdfcfd0c86949e346af25",
+      "normalizedSha256": "bec61abcda63a2334ecbee90a4a930316c118081183cdfcfd0c86949e346af25"
+    },
+    "src/stage/engine-pixi7.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "e49a4371e1f85b47089760a0a694b593058fefec528fc3e97a95134246d4db6e",
+      "normalizedSha256": "768eb6dda0789ae555c00eb89b52a53ed4ea9bb5d551916d86b41ea9107d0dda"
+    },
+    "src/stage/engine.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "89a161c6765d0ebd56e2ee71ff8ccdd4b0f5807e62776fa403e8665167ac0e0e",
+      "normalizedSha256": "2f0612bf46ce7721c772a3489f68e5c2e84c2b8f7ab201a512b158c790d40bec"
+    },
+    "src/stage/extensions.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "9d82c67feda0f4734174702a45000f1b90a4b6d9928927954f40f01cf1d801e8",
+      "normalizedSha256": "9d82c67feda0f4734174702a45000f1b90a4b6d9928927954f40f01cf1d801e8"
+    },
+    "src/stage/face-pinch.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "f70495d1c0cc49366da16644fba0f48c825a25f9968b97cf837ae286abdfcb79",
+      "normalizedSha256": "f70495d1c0cc49366da16644fba0f48c825a25f9968b97cf837ae286abdfcb79"
+    },
+    "src/stage/fault-log.js": {
+      "kind": "upstream-modified",
+      "sha256": "d9b3fa9659663909f510f1fe4c4a81859cab67d8a87963deafa3037911d8e8e6",
+      "normalizedSha256": "d9b3fa9659663909f510f1fe4c4a81859cab67d8a87963deafa3037911d8e8e6"
+    },
+    "src/stage/frame-loop.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "879b518386b2a420a70cd0b0cc724ab97c2f2dbe551996fbe8aa70960b836b01",
+      "normalizedSha256": "879b518386b2a420a70cd0b0cc724ab97c2f2dbe551996fbe8aa70960b836b01"
+    },
+    "src/stage/gaze.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "747dbd4c5102a97904fec7883e73723c356ea4ed7974424df0d7c168c3b0789f",
+      "normalizedSha256": "747dbd4c5102a97904fec7883e73723c356ea4ed7974424df0d7c168c3b0789f"
+    },
+    "src/stage/history.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "2753de53d689cc2eb05d1e6c649fbe7f2449c90eb07b67f4fbcf6dc66a30cbfc",
+      "normalizedSha256": "2753de53d689cc2eb05d1e6c649fbe7f2449c90eb07b67f4fbcf6dc66a30cbfc"
+    },
+    "src/stage/idle-faces.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "c8834f456ffc34bb7c88f185274f5fc8345336581a814acb0b35b12470756770",
+      "normalizedSha256": "c8834f456ffc34bb7c88f185274f5fc8345336581a814acb0b35b12470756770"
+    },
+    "src/stage/idle-motions.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "a11e7bfebdfc8ded05e6d559e5aac79ce3316bf451d424484e5ff6e3293364f6",
+      "normalizedSha256": "c82d0ce028e9243279dbf954fefd2ae946e02758b2f787a4a3b0f6b41a3a3714"
+    },
+    "src/stage/layers.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3b8d04a75b05893a9c8ba6ebf50882863ac2e3a47418bc74ea75e12010bebcb7",
+      "normalizedSha256": "f220f26f5742b463e2d66ef3540c1c67634e999ae01e5143ed01d45f26ea9cdf"
+    },
+    "src/stage/life.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "d58f1284f30738689ea3127619a5351dd5600996be88129ef80f47de0e8b9138",
+      "normalizedSha256": "d58f1284f30738689ea3127619a5351dd5600996be88129ef80f47de0e8b9138"
+    },
+    "src/stage/mask-read.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "fcedde9a47690cefb19ebfe07206b0344f01716d4ddf7a0b8c35cd66d691162c",
+      "normalizedSha256": "5e828e937a30ca4f478d89fbf8539bd56909539d40e829cdbe26040ca8deac59"
+    },
+    "src/stage/mood.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "cfec567a37427765237b4816b1e5706b38f2597af7d69b07a046258cdd92aa56",
+      "normalizedSha256": "cfec567a37427765237b4816b1e5706b38f2597af7d69b07a046258cdd92aa56"
+    },
+    "src/stage/mouth.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "380453a7a01996a5074027c86d048c1bef90c213c71c3b79b6616166a48d7496",
+      "normalizedSha256": "380453a7a01996a5074027c86d048c1bef90c213c71c3b79b6616166a48d7496"
+    },
+    "src/stage/mouth/presets.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "8f1f4614bf4cf1d16bb9af71347a7d999dfc7e5f6460a164e2a666581b5bafec",
+      "normalizedSha256": "8f1f4614bf4cf1d16bb9af71347a7d999dfc7e5f6460a164e2a666581b5bafec"
+    },
+    "src/stage/mouth/visemes.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "a3d57ab2a049bed63b73ed66cb41ecbf80e556a181ebe2991cdbc543f955edd7",
+      "normalizedSha256": "a3d57ab2a049bed63b73ed66cb41ecbf80e556a181ebe2991cdbc543f955edd7"
+    },
+    "src/stage/perf.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "2f18999117459bb7c48bbec296fae3e25f8ac863a7949c610723c81a7a4b8454",
+      "normalizedSha256": "2f18999117459bb7c48bbec296fae3e25f8ac863a7949c610723c81a7a4b8454"
+    },
+    "src/stage/pet-sway.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "0838799a24c04699c3a4bd543686b8fd4cca48a446cdf9192b4ce8a6df7fd0ce",
+      "normalizedSha256": "0838799a24c04699c3a4bd543686b8fd4cca48a446cdf9192b4ce8a6df7fd0ce"
+    },
+    "src/stage/phrases.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "bd2f44dc211eb82d0863adb9f0ca1a8b8fe1dd75218c47c6f813e51571902d3a",
+      "normalizedSha256": "bd2f44dc211eb82d0863adb9f0ca1a8b8fe1dd75218c47c6f813e51571902d3a"
+    },
+    "src/stage/pose-bus.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "eb6ffe30e1e7b5736d597b88199ee0d257f543981104e4a8b9edd3555172246d",
+      "normalizedSha256": "eb6ffe30e1e7b5736d597b88199ee0d257f543981104e4a8b9edd3555172246d"
+    },
+    "src/stage/poses.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "74b913dabd2141ff5137b90df53657374dd5b347c2663b341f73d837bbe03618",
+      "normalizedSha256": "74b913dabd2141ff5137b90df53657374dd5b347c2663b341f73d837bbe03618"
+    },
+    "src/stage/posture.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "48ec09e8d0a7a9b6bb506c4911da12fbae6a8736b5e36a1b88ec933ca62d10a0",
+      "normalizedSha256": "48ec09e8d0a7a9b6bb506c4911da12fbae6a8736b5e36a1b88ec933ca62d10a0"
+    },
+    "src/stage/reactions.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "67151cde580cddf5174d1497962aa9502579cf6308d6a5db0d34d085d92ae525",
+      "normalizedSha256": "67151cde580cddf5174d1497962aa9502579cf6308d6a5db0d34d085d92ae525"
+    },
+    "src/stage/regions.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "f641fd318d2dc5e1c42ccac2bbb12ba3811befd13868eca36552ff8c40d04f2d",
+      "normalizedSha256": "f641fd318d2dc5e1c42ccac2bbb12ba3811befd13868eca36552ff8c40d04f2d"
+    },
+    "src/stage/regions/geometry.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "5b87ea16bcb856386ccad3215942cc3673711690e74d003453169757eab44741",
+      "normalizedSha256": "5b87ea16bcb856386ccad3215942cc3673711690e74d003453169757eab44741"
+    },
+    "src/stage/regions/input.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3d5f6142c1722fbf40056bd942c2a3ee710f188907680a518f45daf5d6e53bc0",
+      "normalizedSha256": "985c5bad80f4e2ccafbdc3da06de465b1caaf9187043a0aee437d20658aabdaf"
+    },
+    "src/stage/regions/store.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "9e0fa846713ba119a054fcb7584262620939c6f8b589a050ea4bb452966d8c18",
+      "normalizedSha256": "9e0fa846713ba119a054fcb7584262620939c6f8b589a050ea4bb452966d8c18"
+    },
+    "src/stage/regions/zones.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "9fb18caa12d64e083e9dce3ad3b2f1f6fd9801e6be6e00d5c9150567908e3f42",
+      "normalizedSha256": "9fb18caa12d64e083e9dce3ad3b2f1f6fd9801e6be6e00d5c9150567908e3f42"
+    },
+    "src/stage/rig/rig.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "139e25043186d8825dbde730a37dd2709e791dc18c564bf5a7209a43ee77a76e",
+      "normalizedSha256": "139e25043186d8825dbde730a37dd2709e791dc18c564bf5a7209a43ee77a76e"
+    },
+    "src/stage/semantics.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "8021255e5fedcc17e026c6b82345cf6c890e09ff1f4b1aecf98bed3bcdc9fe2d",
+      "normalizedSha256": "8021255e5fedcc17e026c6b82345cf6c890e09ff1f4b1aecf98bed3bcdc9fe2d"
+    },
+    "src/stage/tickle.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "52bb22511ef95df9cfb2db45fa5899e04ae8a332136d2d5a43d9d97f8933ab84",
+      "normalizedSha256": "52bb22511ef95df9cfb2db45fa5899e04ae8a332136d2d5a43d9d97f8933ab84"
+    },
+    "src/stage/variants.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "7cee844e6ce4cfddaac6957f1d77de65a8c255a24b01d6d81d000d0234da57ba",
+      "normalizedSha256": "7cee844e6ce4cfddaac6957f1d77de65a8c255a24b01d6d81d000d0234da57ba"
+    },
+    "src/stage/viewport.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3cdb9b0b48d7965417560c478e734eb98446fa8c54e5016e017e00499cb511f7",
+      "normalizedSha256": "3cdb9b0b48d7965417560c478e734eb98446fa8c54e5016e017e00499cb511f7"
+    },
+    "tools/check-editor.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "820b847445c25a35c1e2677307ac79dcf8b4ad5b2ee0e4521076954dc276040f",
+      "normalizedSha256": "820b847445c25a35c1e2677307ac79dcf8b4ad5b2ee0e4521076954dc276040f"
+    },
+    "tools/check-mid.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "18113805c44ce88b2564f0e1832a57fa03c06df7c47c6fd3dc048697a891c54e",
+      "normalizedSha256": "18113805c44ce88b2564f0e1832a57fa03c06df7c47c6fd3dc048697a891c54e"
+    },
+    "tools/check-regions.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "7f77e7ffaf1800d56f7974c101ce950e3a0f1451015ea3af5273027bfa3562ba",
+      "normalizedSha256": "7f77e7ffaf1800d56f7974c101ce950e3a0f1451015ea3af5273027bfa3562ba"
+    },
+    "tools/check-stage-ui.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "cc31383483b3156e583d9a0310eab4c92117106518ae9483615d8a851c009a67",
+      "normalizedSha256": "cc31383483b3156e583d9a0310eab4c92117106518ae9483615d8a851c009a67"
+    },
+    "tools/diagnose.ps1": {
+      "kind": "upstream-unchanged",
+      "sha256": "f2f18429044c73e67c88c7aade0f77fa029693a8e1b2c089259c4b138b22098f",
+      "normalizedSha256": "f2f18429044c73e67c88c7aade0f77fa029693a8e1b2c089259c4b138b22098f"
+    },
+    "tools/lab/abcache.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "04adead601316817b880d9959b95d429694cf74ef5c6967901d064cb08d48271",
+      "normalizedSha256": "04adead601316817b880d9959b95d429694cf74ef5c6967901d064cb08d48271"
+    },
+    "tools/lab/bubble-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "dd98264b35c84a4552f954eba993c4cdcbc6a522330d2155f04f05d535100967",
+      "normalizedSha256": "dd98264b35c84a4552f954eba993c4cdcbc6a522330d2155f04f05d535100967"
+    },
+    "tools/lab/bubble-unit.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "836ac227e380b70d6994ab5aa7b13e8e8139b4368934b9af8859319fa2bb52d4",
+      "normalizedSha256": "836ac227e380b70d6994ab5aa7b13e8e8139b4368934b9af8859319fa2bb52d4"
+    },
+    "tools/lab/cadence.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "451f3f5999ac0a17fa04c393916514dee336c74376325b54f2c91973e56ea207",
+      "normalizedSha256": "451f3f5999ac0a17fa04c393916514dee336c74376325b54f2c91973e56ea207"
+    },
+    "tools/lab/cdp-nav.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "57ab75cd9c5ac38036843b06be7c2e88cb8fc51fd455f1df96c737fc79bdd2c2",
+      "normalizedSha256": "57ab75cd9c5ac38036843b06be7c2e88cb8fc51fd455f1df96c737fc79bdd2c2"
+    },
+    "tools/lab/cdp-shot.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "7852a2d18d6ee6abf0b73c95eb0fababab22e0bd6fcbc7cc4ed938e5d399188c",
+      "normalizedSha256": "7852a2d18d6ee6abf0b73c95eb0fababab22e0bd6fcbc7cc4ed938e5d399188c"
+    },
+    "tools/lab/core-ab-snippet.js": {
+      "kind": "upstream-modified",
+      "sha256": "7d1f51312f1e0e50fecde275a986147251f3c9d7fffc4144facbb9ef08c3e06f",
+      "normalizedSha256": "7d1f51312f1e0e50fecde275a986147251f3c9d7fffc4144facbb9ef08c3e06f"
+    },
+    "tools/lab/drag-diag.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "1aac3462108002ccaf3dc8224e8e1d02ecc700a0cd0aa1b7d265025773b129dd",
+      "normalizedSha256": "1aac3462108002ccaf3dc8224e8e1d02ecc700a0cd0aa1b7d265025773b129dd"
+    },
+    "tools/lab/drag-diag2.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "79c66d8c1c9f05bcae5a88398395340a9186ac1d38ce85431eb2c08e6dd26c46",
+      "normalizedSha256": "79c66d8c1c9f05bcae5a88398395340a9186ac1d38ce85431eb2c08e6dd26c46"
+    },
+    "tools/lab/drag-diag3.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "712a535207da7a375f77e079bf6e1de899569cfcab6e706b6143c1a1cf8cebdb",
+      "normalizedSha256": "712a535207da7a375f77e079bf6e1de899569cfcab6e706b6143c1a1cf8cebdb"
+    },
+    "tools/lab/drag-event-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "095f90ad0d1ac458badc0ff2a0acdb54d0e441c167626beb7646dd227497a789",
+      "normalizedSha256": "095f90ad0d1ac458badc0ff2a0acdb54d0e441c167626beb7646dd227497a789"
+    },
+    "tools/lab/drag-frames.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "96165e679a1d678cf20f0c7b111b20a1d018fd79a57b91405ff3c3bcdb25d67c",
+      "normalizedSha256": "96165e679a1d678cf20f0c7b111b20a1d018fd79a57b91405ff3c3bcdb25d67c"
+    },
+    "tools/lab/drag-log-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "f7237b8ec98a951a2d0e8e757ff239accb3ec58899b921c60cfce256f7204722",
+      "normalizedSha256": "f7237b8ec98a951a2d0e8e757ff239accb3ec58899b921c60cfce256f7204722"
+    },
+    "tools/lab/drag-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "58b4a909a46ed81cd402eb6a89cee738ddd5863ab9ce67b418bdd72ed610e7f0",
+      "normalizedSha256": "58b4a909a46ed81cd402eb6a89cee738ddd5863ab9ce67b418bdd72ed610e7f0"
+    },
+    "tools/lab/drag-smooth-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "42fa22413ab36297a58ad96039c354ee9b73e136409e6db2c76c028b30cb3e9d",
+      "normalizedSha256": "42fa22413ab36297a58ad96039c354ee9b73e136409e6db2c76c028b30cb3e9d"
+    },
+    "tools/lab/draw-count.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "1dde2c7ac84c99505eac7e00ef8df1c2d06abd31f70516a77ea9445502d0246e",
+      "normalizedSha256": "1dde2c7ac84c99505eac7e00ef8df1c2d06abd31f70516a77ea9445502d0246e"
+    },
+    "tools/lab/draw-count2.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "dded08fa4fe46a7a931acd567a36fb720002a90d661dbcf99c4df16625e2c5e6",
+      "normalizedSha256": "dded08fa4fe46a7a931acd567a36fb720002a90d661dbcf99c4df16625e2c5e6"
+    },
+    "tools/lab/draw-debug.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "6c0bed824758a534269c01a90625dcb192b86a8fdf2cfa8a10bc9d9db9c6dc3c",
+      "normalizedSha256": "6c0bed824758a534269c01a90625dcb192b86a8fdf2cfa8a10bc9d9db9c6dc3c"
+    },
+    "tools/lab/draw-flags.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3c165ee2a1c62f8f5e3d1737d4db1411a209bbac9ae9055d69fc3edcb78cad9e",
+      "normalizedSha256": "3c165ee2a1c62f8f5e3d1737d4db1411a209bbac9ae9055d69fc3edcb78cad9e"
+    },
+    "tools/lab/draw-real.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "66084b5ef9c01f0eee28cd729265afadacc2ac6e8e4654efa12546d04c4e8fcf",
+      "normalizedSha256": "66084b5ef9c01f0eee28cd729265afadacc2ac6e8e4654efa12546d04c4e8fcf"
+    },
+    "tools/lab/draw-stack.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "5476ee4fc625a1e5b2a6d9bbeb660e68399340e22dd83c6676b3905839e2b168",
+      "normalizedSha256": "5476ee4fc625a1e5b2a6d9bbeb660e68399340e22dd83c6676b3905839e2b168"
+    },
+    "tools/lab/dt-watch.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "abd2aa6649016fa13202ee41a440f9e4700d55aa8c443e778f851fbdff52a964",
+      "normalizedSha256": "abd2aa6649016fa13202ee41a440f9e4700d55aa8c443e778f851fbdff52a964"
+    },
+    "tools/lab/dyn-zones.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "660d73afeaaba06b76f8a0d77b51e10069c6599ce0d1e7f9230947cbd764aaa2",
+      "normalizedSha256": "660d73afeaaba06b76f8a0d77b51e10069c6599ce0d1e7f9230947cbd764aaa2"
+    },
+    "tools/lab/ed-accept.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "e771a3c0fad92a172e11ab72715256e8a669bb0216623e5e634c3b62e8d53dc1",
+      "normalizedSha256": "e771a3c0fad92a172e11ab72715256e8a669bb0216623e5e634c3b62e8d53dc1"
+    },
+    "tools/lab/ed-diff.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "ab93d3755580d9f461ae472f7bb873c9bce4f3750b97646e8aa05f3c72346d57",
+      "normalizedSha256": "ab93d3755580d9f461ae472f7bb873c9bce4f3750b97646e8aa05f3c72346d57"
+    },
+    "tools/lab/ed-frame-write.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "f53f0bb43427cabc20fdec2cf18aa768018063b56393bcd050281e2e97112b2f",
+      "normalizedSha256": "f53f0bb43427cabc20fdec2cf18aa768018063b56393bcd050281e2e97112b2f"
+    },
+    "tools/lab/ed-hands.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "068f9c87c5168205f9b2dfbbb9044178d4d47c66e9237fce4c31b4a65bfcb24f",
+      "normalizedSha256": "068f9c87c5168205f9b2dfbbb9044178d4d47c66e9237fce4c31b4a65bfcb24f"
+    },
+    "tools/lab/ed-on2.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "37e7d8492cb110b27ea466092a5ebe60cb69686a29d8fc03668d61115ba8ddeb",
+      "normalizedSha256": "37e7d8492cb110b27ea466092a5ebe60cb69686a29d8fc03668d61115ba8ddeb"
+    },
+    "tools/lab/ed-poses.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "d24374b99c3d478179fc02adaafe6933d1f89057a00530100bc3cb74b7a47ed1",
+      "normalizedSha256": "d24374b99c3d478179fc02adaafe6933d1f89057a00530100bc3cb74b7a47ed1"
+    },
+    "tools/lab/ed-routines.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "9abe50fe58fbe92eeb86498a7d9c7a908153768c7d6704750e7bbaf09d8c57fe",
+      "normalizedSha256": "9abe50fe58fbe92eeb86498a7d9c7a908153768c7d6704750e7bbaf09d8c57fe"
+    },
+    "tools/lab/ed-write-chain.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "2f25a5a657facc0ee1bd255719db2e77e7e107b10f4a16ee16a3039b8858e40e",
+      "normalizedSha256": "2f25a5a657facc0ee1bd255719db2e77e7e107b10f4a16ee16a3039b8858e40e"
+    },
+    "tools/lab/eval.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "68a6236c4e138ecc8fb4a89f25986c17e5bdda0764e7309c68a9f295f871e02a",
+      "normalizedSha256": "68a6236c4e138ecc8fb4a89f25986c17e5bdda0764e7309c68a9f295f871e02a"
+    },
+    "tools/lab/eval9223.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "c8b301b3b13f823909b1523455b20b31d32b4a4439f8dc4596470cba2a1e5915",
+      "normalizedSha256": "c8b301b3b13f823909b1523455b20b31d32b4a4439f8dc4596470cba2a1e5915"
+    },
+    "tools/lab/fps-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "270bbbba0d2b7e890ff8d68b426de7a1f5a082dd77de03b38c3d4149d70cd2f1",
+      "normalizedSha256": "270bbbba0d2b7e890ff8d68b426de7a1f5a082dd77de03b38c3d4149d70cd2f1"
+    },
+    "tools/lab/frame-bench.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "ecaba3c7723c542fc505339999b8f61d38a48a048aeb4dc1643fb0ca9055979f",
+      "normalizedSha256": "ecaba3c7723c542fc505339999b8f61d38a48a048aeb4dc1643fb0ca9055979f"
+    },
+    "tools/lab/frame-breakdown.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "e5d6825fad4ed01646740903d5d51193f6bfae46ebfa3e90f902fe02cca9ea95",
+      "normalizedSha256": "e5d6825fad4ed01646740903d5d51193f6bfae46ebfa3e90f902fe02cca9ea95"
+    },
+    "tools/lab/frame-breakdown.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "5f3b151a5df67f86bfe01c41c5472d9c91a7ad2a9aece2e8e87cb92c5f8c612b",
+      "normalizedSha256": "ebbb8725a094c3a0946c45e684bd0612f43d1105b1fd520a90d3279864d02ef7"
+    },
+    "tools/lab/jank-long.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "41e5a23ee2affdfb68713d6824e7858957500cba2c29cd16a130b01961997e74",
+      "normalizedSha256": "41e5a23ee2affdfb68713d6824e7858957500cba2c29cd16a130b01961997e74"
+    },
+    "tools/lab/left-vs-right.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "7f457cd0f242bd9a6823f7c323c6dfc8d4a46cac1fbf0d461156c5aeb3e6c25a",
+      "normalizedSha256": "7f457cd0f242bd9a6823f7c323c6dfc8d4a46cac1fbf0d461156c5aeb3e6c25a"
+    },
+    "tools/lab/model-update-watch.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "05053b65ec1743453789813fc60f2ccdf36294a5dc8b81ec6b8a955c40366015",
+      "normalizedSha256": "05053b65ec1743453789813fc60f2ccdf36294a5dc8b81ec6b8a955c40366015"
+    },
+    "tools/lab/ontop-ab.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3112b44c1f4e8ecf5441d1201de41dc2c00575651a8596f22bec0d4998d614ef",
+      "normalizedSha256": "3112b44c1f4e8ecf5441d1201de41dc2c00575651a8596f22bec0d4998d614ef"
+    },
+    "tools/lab/param-motion.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "cbb5c430aa7708bf295f41e70e5b19ff4e3ed9c73d57d5bf80b804cfcad22521",
+      "normalizedSha256": "cbb5c430aa7708bf295f41e70e5b19ff4e3ed9c73d57d5bf80b804cfcad22521"
+    },
+    "tools/lab/param-write.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "4f967e94a215f0f5f44a34119aaf812c3fe3af97dd9f534f59b2bb412c582b8f",
+      "normalizedSha256": "4f967e94a215f0f5f44a34119aaf812c3fe3af97dd9f534f59b2bb412c582b8f"
+    },
+    "tools/lab/perf-opt.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "8c6b471ab6e73b1ea50fdec271513bae4f9af322204856f75abc50ef5d07117d",
+      "normalizedSha256": "89fbbd606dc676d5b7bd87c8270c8e8f57fd570027e622e9c32730758cf1cbc8"
+    },
+    "tools/lab/pkg-tail-check.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "6e09e84554a2ff0e7fc7be11639e93b30b2a08a144c777c8df7f8a7ad2041f7f",
+      "normalizedSha256": "6e09e84554a2ff0e7fc7be11639e93b30b2a08a144c777c8df7f8a7ad2041f7f"
+    },
+    "tools/lab/press-drag.ps1": {
+      "kind": "upstream-unchanged",
+      "sha256": "b2fe2817207cd44f33514d80783a709775405ca61e1fd38e9c917a52ed9c5382",
+      "normalizedSha256": "b2fe2817207cd44f33514d80783a709775405ca61e1fd38e9c917a52ed9c5382"
+    },
+    "tools/lab/real-drag-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "75126ce5a77bdf81df5fbd5fb685b6c5d5c5b1574e4a049b8ac6de50e1d3064e",
+      "normalizedSha256": "75126ce5a77bdf81df5fbd5fb685b6c5d5c5b1574e4a049b8ac6de50e1d3064e"
+    },
+    "tools/lab/rec-start.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "25ffe9e46baa0de2b64246934444c14ac0dad9e81a55a7b732221f7812db5b43",
+      "normalizedSha256": "25ffe9e46baa0de2b64246934444c14ac0dad9e81a55a7b732221f7812db5b43"
+    },
+    "tools/lab/render-fps.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "c71269542f64fe98392b323abb67f4269b265300ad49bca1ed4f90b0fdd9b2e9",
+      "normalizedSha256": "c71269542f64fe98392b323abb67f4269b265300ad49bca1ed4f90b0fdd9b2e9"
+    },
+    "tools/lab/right-drag-diag.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "8331bd163715a5bbd8c889786cb8226c578ee637a7f520a490ac119b085d725b",
+      "normalizedSha256": "8331bd163715a5bbd8c889786cb8226c578ee637a7f520a490ac119b085d725b"
+    },
+    "tools/lab/slowframe.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "db2d4ef6bd497f9221158dc2bb17128449a7a77d66322a2873ba59bce97901e2",
+      "normalizedSha256": "db2d4ef6bd497f9221158dc2bb17128449a7a77d66322a2873ba59bce97901e2"
+    },
+    "tools/lab/step-debug.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "3d59a6931316d48c7d8d74fd138497b55c3c2b785805c0b1858d6f0a9d03dcc5",
+      "normalizedSha256": "3d59a6931316d48c7d8d74fd138497b55c3c2b785805c0b1858d6f0a9d03dcc5"
+    },
+    "tools/lab/subsys.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "5db2431d4ab768b7344bbde25c0805cc33071e9c15f1389234bd51399623e21a",
+      "normalizedSha256": "5db2431d4ab768b7344bbde25c0805cc33071e9c15f1389234bd51399623e21a"
+    },
+    "tools/lab/summ8.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "e8d5013e1b55da223d0868fdae9fb593d8e128af14c8f37e2c5c6092c83baeef",
+      "normalizedSha256": "e8d5013e1b55da223d0868fdae9fb593d8e128af14c8f37e2c5c6092c83baeef"
+    },
+    "tools/lab/tail-levers.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "04eeb5bf24ab76f4ac1e8ce8e8dcf86bf0e8ae86bd6bf6b258e65aebc7254802",
+      "normalizedSha256": "04eeb5bf24ab76f4ac1e8ce8e8dcf86bf0e8ae86bd6bf6b258e65aebc7254802"
+    },
+    "tools/lab/tail-pet.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "1ceebb6f1b32060a96b59d52972e0c9825a74cf11cb63373ff0dc0328cea95d7",
+      "normalizedSha256": "1ceebb6f1b32060a96b59d52972e0c9825a74cf11cb63373ff0dc0328cea95d7"
+    },
+    "tools/lab/tail-swing.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "60eb287a29b9c80107f89b9173e24776e24542c11bbe3619590eb939daac45ab",
+      "normalizedSha256": "60eb287a29b9c80107f89b9173e24776e24542c11bbe3619590eb939daac45ab"
+    },
+    "tools/lab/tail-wag.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "85e21c20c6d7d2454975d9120a046e16dc3d850399de6dd96f3ecf094802e18c",
+      "normalizedSha256": "85e21c20c6d7d2454975d9120a046e16dc3d850399de6dd96f3ecf094802e18c"
+    },
+    "tools/lab/ticker-err.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "a796c2ffc0656f8bcfd27020483b7bda4894d7e0bbef1273e1bf5f257b543eb0",
+      "normalizedSha256": "a796c2ffc0656f8bcfd27020483b7bda4894d7e0bbef1273e1bf5f257b543eb0"
+    },
+    "tools/lab/ticker-trace.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "6bebf60180b81a12d9a50beed0fa285e3a6cbf90c04cfdd70a271a9d3767e740",
+      "normalizedSha256": "6bebf60180b81a12d9a50beed0fa285e3a6cbf90c04cfdd70a271a9d3767e740"
+    },
+    "tools/lab/ticker-watch.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "746b08cece625952abcf28b9f20349e04cbf5d71750a17f3d4b9c738022c8ca6",
+      "normalizedSha256": "746b08cece625952abcf28b9f20349e04cbf5d71750a17f3d4b9c738022c8ca6"
+    },
+    "tools/lab/trace20.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "784df2aeb5e5e3c2147417439b578b76afd2e2f022423bac2d9a4af6f4a67828",
+      "normalizedSha256": "784df2aeb5e5e3c2147417439b578b76afd2e2f022423bac2d9a4af6f4a67828"
+    },
+    "tools/lab/vertex-motion.js": {
+      "kind": "upstream-unchanged",
+      "sha256": "cfc22118f23bd6954d6c4c388f8c34e48401a5233c52d910fbf2fe2997e040fb",
+      "normalizedSha256": "cfc22118f23bd6954d6c4c388f8c34e48401a5233c52d910fbf2fe2997e040fb"
+    },
+    "tools/lab/yield-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "666775f6ca4fa7673246114a7b098f0cb00e0e6a647020ac01f8c669dd5ce1fb",
+      "normalizedSha256": "666775f6ca4fa7673246114a7b098f0cb00e0e6a647020ac01f8c669dd5ce1fb"
+    },
+    "tools/lab/zoom-diag.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "379eb7e5084bfb6fd1bce941eae34b3a203c50feda1b3641f84c7f5bcd6ede9b",
+      "normalizedSha256": "379eb7e5084bfb6fd1bce941eae34b3a203c50feda1b3641f84c7f5bcd6ede9b"
+    },
+    "tools/lab/zoom-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "d1bb20511814cbab211c525a4b08d599fbd69659625c043f4faa5a208845bb28",
+      "normalizedSha256": "d1bb20511814cbab211c525a4b08d599fbd69659625c043f4faa5a208845bb28"
+    },
+    "tools/lab/zoom-rect-probe.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "1ba281dba664395cc9154274f1218f26add36d945b7cbea521545ca2d3ef695d",
+      "normalizedSha256": "1ba281dba664395cc9154274f1218f26add36d945b7cbea521545ca2d3ef695d"
+    },
+    "tools/mount-model.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "7b2cf543b687cea96419d4dcc9797a1b6b5a24c08d8e4263292b969c42bcb5ec",
+      "normalizedSha256": "7b2cf543b687cea96419d4dcc9797a1b6b5a24c08d8e4263292b969c42bcb5ec"
+    },
+    "tools/shrink-textures.ps1": {
+      "kind": "upstream-unchanged",
+      "sha256": "ab13d599c79952c5fadd826b452bd1b697d44a964470075495a9d2dfae958290",
+      "normalizedSha256": "ab13d599c79952c5fadd826b452bd1b697d44a964470075495a9d2dfae958290"
+    },
+    "tools/stage-cli.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "9969bd477b50239cc5b5e84f6a5235abdc4c99e18c59136185ecee9c5a00a162",
+      "normalizedSha256": "9969bd477b50239cc5b5e84f6a5235abdc4c99e18c59136185ecee9c5a00a162"
+    },
+    "tools/verify-rig.mjs": {
+      "kind": "upstream-unchanged",
+      "sha256": "86bfdfdb42548d4a692fd83759ae7b057c0d05ce4e464eefe544e93580e445f0",
+      "normalizedSha256": "00276423b7a7d9b9b6d205a965033055bd15a2702347bd07430ff0787c58847f"
+    },
+    "兼容模式.cmd": {
+      "kind": "upstream-unchanged",
+      "sha256": "5145a4bd6aa42bba381df19134839d50325342962ce397699748af46fabbc0b5",
+      "normalizedSha256": "b53b2aea2f9d637797f7f324e3869ffcb65021ff8eb957bb0b4dddee0a499d77"
+    },
+    "挂载模型.cmd": {
+      "kind": "upstream-unchanged",
+      "sha256": "7bceeb52fb990ae09bddc6b5b8decf5a7150006538202e3ffdfb9a9a88498f70",
+      "normalizedSha256": "47bc73fbee343b78f34b10ab0dd88953c85828d8e539dbe12ae665b203d5ac55"
+    },
+    "诊断.cmd": {
+      "kind": "upstream-unchanged",
+      "sha256": "c48ef61dfe91d2c11adbe601b894e0b8bade89ee7441edfd6e225a0e401a2474",
+      "normalizedSha256": "a6f317aef8a560157b1b4516e3892e1f4f5ec44fcc602790ba740300df3b20a0"
+    },
+    "贴图压缩.cmd": {
+      "kind": "upstream-unchanged",
+      "sha256": "99a12b151260327c30ee0d56dc1b9cd8a8ddc436acee2f8b18582960b542be42",
+      "normalizedSha256": "98730f8c24b9dd6ca8dd8ca616783f88c5610e153e71761f5b7ea25c9bac17b4"
+    }
+  }
+}
