@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { LocalSpeech } from '../source/desktop-v1.1.0/app/kernel/local-speech.mjs'
-import { BodySession } from '../source/desktop-v1.1.0/app/kernel/body-port.mjs'
+import { LocalSpeech } from '../companion/kernel/local-speech.mjs'
+import { BodySession } from '../companion/kernel/body-port.mjs'
 
 function speech(fetchImpl) {
   const instance = new LocalSpeech({ configFile: '', fetchImpl })

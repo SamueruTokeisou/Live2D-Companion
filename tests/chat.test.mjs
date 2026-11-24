@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { CodexProvider, ChatError, PROCESS_CONFIG } from '../source/desktop-v1.1.0/app/kernel/codex-provider.mjs'
-import { ChatRuntime } from '../source/desktop-v1.1.0/app/kernel/chat-runtime.mjs'
+import { CodexProvider, ChatError, PROCESS_CONFIG } from '../companion/kernel/codex-provider.mjs'
+import { ChatRuntime } from '../companion/kernel/chat-runtime.mjs'
 
 class FakeTransport {
   constructor(scenario) { this.scenario=scenario;this.listeners=new Set();this.requests=[];this.closed=false }
@@ -113,7 +113,7 @@ test('background click never invokes cloud provider',async()=>{
   assert.equal(called,false);assert.equal(r.snapshot().usage.appRequests,0)
 })
 
-import { findCodex } from '../source/desktop-v1.1.0/app/kernel/codex-provider.mjs'
+import { findCodex } from '../companion/kernel/codex-provider.mjs'
 import path from 'node:path'
 test('explicit missing executable fails closed instead of using another available provider',()=>{
   assert.throws(()=>findCodex({LIVE2D_CODEX_PATH:path.resolve('fixture-no-codex.exe'),PATH:process.env.PATH}),e=>e.code==='codex_missing')

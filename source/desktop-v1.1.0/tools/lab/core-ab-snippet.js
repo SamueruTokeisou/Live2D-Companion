@@ -1,5 +1,5 @@
 (async () => {
-  const MODEL = 'C:/Users/33153/Desktop/DeepSeek免费公皮/DeepSeek/_opt2048/大肥鱼.moc3'
+  const MODEL = window.CUBISM_TEST_MODEL; if (!MODEL) throw new Error('Set window.CUBISM_TEST_MODEL explicitly')
   const nativeCore = window.Live2DCubismCore
   if (!nativeCore || !nativeCore.__native) return { error: '当前不是原生核心' }
 

@@ -2,7 +2,7 @@
 
 一个优先做好基础体验的单角色Live2D桌宠项目。当前推进聊天气泡、声音口型、基础表情和日常控制；未来虚拟主播、记忆和唱歌暂列待办。见[桌宠基础企划2.1](docs/public/PROJECT_PLAN.md)和[路线图](ROADMAP.md)。
 
-当前为 **0.4.7-dev**。基于 [FULASKA Live2D Stage v1.1.0](https://github.com/FULASKA/-live2d-/releases/tag/v1.1.0) 的 MIT 代码进行改进，并增加角色管理与通用模型适配。模型不是本项目原创，也不随仓库分发。
+当前为 **0.4.8-dev**。基于 [FULASKA Live2D Stage v1.1.0](https://github.com/FULASKA/-live2d-/releases/tag/v1.1.0) 的 MIT 代码进行改进，并增加角色管理与通用模型适配。模型不是本项目原创，也不随仓库分发。
 
 ## 已经能做什么
 
@@ -71,7 +71,7 @@ python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-Node.js 24 用于 JavaScript 语法检查与舞台调试。`source/desktop-v1.1.0` 是保留来源的引擎源码；`tools/pet_manager.py` 是本项目的角色管理器；`tools/setup.py` 将列出的本地改动部署到已校验的运行包。
+Node.js 24 用于 JavaScript 语法检查与舞台调试。`companion/`是自有内核与配置模块；`source/desktop-v1.1.0`是维护中的上游引擎分支；`tools/pet_manager.py` 是本项目的角色管理器；`tools/setup.py` 将列出的本地改动部署到已校验的运行包。
 
 - [项目企划书](docs/public/PROJECT_PLAN.md)：分阶段规划、验收门槛与下一轮任务。
 - [P5 声音选型](docs/public/P5_VOICE_SELECTION.md)：本地语音候选、试听入口与分步验收。
@@ -99,3 +99,5 @@ Node.js 24 用于 JavaScript 语法检查与舞台调试。`source/desktop-v1.1.
 本项目代码使用 [MIT](LICENSE)。保留 FULASKA 及其依赖的署名；第三方声明见 [NOTICE](NOTICE.md)。大肥鱼的原画及拆分为神宫凉子，官方建模为霓虹猫_NeonNeko；模型请自行向原作者获取并遵守使用须知。
 
 **模型、PSD、贴图、Cubism Core、语音素材和模型权重不由本仓库 MIT 许可覆盖。** 不要在 Issue 或 PR 上传完整模型；描述问题时请使用脱敏日志或合法的小型复现材料。
+
+应用源码构建已在本机验证，见[构建说明](docs/public/BUILD.md)；上游固定来源与逐文件分类见[来源边界](upstream/README.md)。普通安装方式暂时不变。

@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { EventKernel } from '../source/desktop-v1.1.0/app/kernel/event-kernel.mjs'
-import { BodySession } from '../source/desktop-v1.1.0/app/kernel/body-port.mjs'
+import { EventKernel } from '../companion/kernel/event-kernel.mjs'
+import { BodySession } from '../companion/kernel/body-port.mjs'
 
 async function flush() { for (let i = 0; i < 20; i++) await Promise.resolve() }
 class Clock {
@@ -146,7 +146,7 @@ test('bounded background queue makes room for user; repeated resume never lies a
   await c.advance(200);assert.equal(shown[0],'priority')
 })
 
-import { StageBodyAdapter } from '../source/desktop-v1.1.0/app/kernel/stage-adapter.mjs'
+import { StageBodyAdapter } from '../companion/kernel/stage-adapter.mjs'
 test('unresponsive body RPC has a deadline; adapter forwards only fixed operation names',async()=>{
   const c=new Clock(), calls=[]
   const adapter=new StageBodyAdapter((op,payload)=>{calls.push(op);return new Promise(()=>{})},{timeoutMs:100,clock:c})

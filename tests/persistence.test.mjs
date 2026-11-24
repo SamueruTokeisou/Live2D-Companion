@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync, unlinkSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { readSettings, writeSettings } from '../source/desktop-v1.1.0/app/persistence.mjs'
+import { readSettings, writeSettings } from '../companion/persistence.mjs'
 
 test('settings migration, burst saves, backup recovery and future-version protection', () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'companion-config-'))
@@ -29,7 +29,7 @@ test('settings migration, burst saves, backup recovery and future-version protec
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
 
-import { visiblePosition } from '../source/desktop-v1.1.0/app/placement.mjs'
+import { visiblePosition } from '../companion/placement.mjs'
 test('placement preserves visible windows and recovers absent screens', () => {
   const areas = [{ x: 0, y: 0, width: 1920, height: 1080 }, { x: -1600, y: 0, width: 1600, height: 900 }]
   assert.deepEqual(visiblePosition({ x: -1200, y: 40, width: 380, height: 620 }, areas), { x: -1200, y: 40 })

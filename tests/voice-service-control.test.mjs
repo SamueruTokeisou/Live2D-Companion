@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {EventEmitter} from 'node:events'
-import {VoiceServiceControl} from '../source/desktop-v1.1.0/app/kernel/voice-service-control.mjs'
+import {VoiceServiceControl} from '../companion/kernel/voice-service-control.mjs'
 const flush=()=>new Promise(resolve=>setImmediate(resolve))
 function fixture(extra={}){const child=new EventEmitter();child.kill=()=>{child.killed=true};const calls=[];const control=new VoiceServiceControl({python:'fixed-python',script:'fixed-helper',exists:()=>true,spawnImpl:(...args)=>{calls.push(args);return child},...extra});return{child,calls,control}}
 test('missing installation and unknown action cannot launch anything',()=>{const f=fixture({exists:()=>false});assert.throws(()=>f.control.request('start'),{code:'voice_control_unavailable'});assert.throws(()=>f.control.request('arbitrary-command'),{code:'voice_operation_invalid'});assert.equal(f.calls.length,0)})

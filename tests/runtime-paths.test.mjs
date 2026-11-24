@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,existsSync,unlinkSync,rmdirSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
-import {configureRuntimePaths,resolveRuntimePaths} from '../source/desktop-v1.1.0/app/runtime-paths.mjs'
-import {ProtectedAccountStore} from '../source/desktop-v1.1.0/app/kernel/chatgpt-auth.mjs'
+import {configureRuntimePaths,resolveRuntimePaths} from '../companion/runtime-paths.mjs'
+import {ProtectedAccountStore} from '../companion/kernel/chatgpt-auth.mjs'
 function fixture(t){
  const root=mkdtempSync(path.join(tmpdir(),'companion-paths-'));const profile=path.join(root,'role'),auth=path.join(root,'auth'),legacy=path.join(root,'legacy');for(const d of [profile,auth,legacy])mkdirSync(d)
  const state=path.join(auth,'browser-state','Local State'),accounts=path.join(auth,'accounts.json'),old=path.join(legacy,'Local State');const paths={};const app={getPath:()=>profile,setPath:(key,value)=>paths[key]=value}

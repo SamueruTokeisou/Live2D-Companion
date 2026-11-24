@@ -19,3 +19,5 @@ Read docs/public/PROJECT_PLAN.md, README.md, ROADMAP.md, docs/public/ARCHITECTUR
 - The owner removed Haru. Do not import, restore, download or launch Haru/sample characters for default acceptance. Use the current DeepSeek character; generic logic uses synthetic unit fixtures unless the owner explicitly selects another model.
 
 - Work autonomously within the selected scope and keep progress/final reports concise. Avoid redundant reads, model calls and repeated checks after passing validation; preserve the same implementation and verification standard.
+
+- Own runtime modules live in companion/. source/desktop-v1.1.0 is the maintained upstream-derived integration/engine tree. Update tools/setup.py for both source roots. See docs/public/BUILD.md and upstream/README.md; CI verifies upstream provenance.

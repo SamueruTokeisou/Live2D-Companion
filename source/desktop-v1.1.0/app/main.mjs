@@ -12,16 +12,16 @@ import { fileURLToPath } from 'node:url'
 import { readFile, writeFile, mkdir, stat, rename } from 'node:fs/promises'
 import { existsSync, mkdirSync, readdirSync, appendFileSync, statSync, renameSync, readFileSync, writeFileSync, openSync, readSync, closeSync } from 'node:fs'
 import { spawn } from 'node:child_process'
-import { ChatGptAuth, ProtectedAccountStore } from './kernel/chatgpt-auth.mjs'
-import { VoiceServiceControl } from './kernel/voice-service-control.mjs'
-import { LocalSpeech } from './kernel/local-speech.mjs'
-import { ChatGptProvider } from './kernel/chatgpt-provider.mjs'
-import { ChatRuntime, CHAT_ERRORS } from './kernel/chat-runtime.mjs'
-import { EventKernel, localHandler } from './kernel/event-kernel.mjs'
-import { StageBodyAdapter } from './kernel/stage-adapter.mjs'
-import { visiblePosition } from './placement.mjs'
-import { readSettings, writeSettings } from './persistence.mjs'
-import { resolveRuntimePaths } from './runtime-paths.mjs'
+import { ChatGptAuth, ProtectedAccountStore } from '../companion/kernel/chatgpt-auth.mjs'
+import { VoiceServiceControl } from '../companion/kernel/voice-service-control.mjs'
+import { LocalSpeech } from '../companion/kernel/local-speech.mjs'
+import { ChatGptProvider } from '../companion/kernel/chatgpt-provider.mjs'
+import { ChatRuntime, CHAT_ERRORS } from '../companion/kernel/chat-runtime.mjs'
+import { EventKernel, localHandler } from '../companion/kernel/event-kernel.mjs'
+import { StageBodyAdapter } from '../companion/kernel/stage-adapter.mjs'
+import { visiblePosition } from '../companion/placement.mjs'
+import { readSettings, writeSettings } from '../companion/persistence.mjs'
+import { resolveRuntimePaths } from '../companion/runtime-paths.mjs'
 import { createControlToken } from '../src/server/control-security.mjs'
 import { createStageServer } from '../src/server/stage-server.mjs'
 
@@ -153,7 +153,7 @@ process.on('unhandledRejection', (e) => {
 })
 
 const HOME_DIR = app.getPath('home') || ''
-// 不构造正则：用户目录在同一条路径里可能写成 C:\Users\x 也可能写成 C:/Users/x，
+// 用户目录既可能使用反斜杠，也可能使用正斜杠。
 // 两种分隔符各扫一遍，大小写不敏感（Windows 路径本来就不区分大小写）。
 const redact = (s) => {
   let out = String(s ?? '')

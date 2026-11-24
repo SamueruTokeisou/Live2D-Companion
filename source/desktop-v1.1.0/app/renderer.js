@@ -1,5 +1,5 @@
-import { createConversationAdapter } from './kernel/conversation-adapter.mjs'
-import { installBodyPort } from './kernel/body-port.mjs'
+import { createConversationAdapter } from '../companion/kernel/conversation-adapter.mjs'
+import { installBodyPort } from '../companion/kernel/body-port.mjs'
 // Live2D Stage —— 应用渲染层（透明窗口里的角色）。
 // 只做「角色 + 互动 + 设置」，验证台的调试面板不在这里。
 // 引擎分支：?engine=pixi7 用 pixi7 + mulmotion（乘法色分支，实测快一倍），默认走 pixi8 内核

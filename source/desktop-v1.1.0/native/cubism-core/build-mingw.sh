@@ -7,8 +7,8 @@ MSYS=/c/msys64/ucrt64/bin
 GXX="$MSYS/g++.exe"
 OBJDUMP="$MSYS/objdump.exe"
 DLLTOOL="$MSYS/dlltool.exe"
-INC="C:/Users/33153/AppData/Local/node-gyp/Cache/24.16.0/include/node"
-ELECTRON="D:/WebCodingRepo/live2d-stage/node_modules/electron/dist/electron.exe"
+INC="${NODE_INCLUDE_DIR:?Set NODE_INCLUDE_DIR}"
+ELECTRON="${ELECTRON_EXE:?Set ELECTRON_EXE}"
 
 mkdir -p build
 cd build

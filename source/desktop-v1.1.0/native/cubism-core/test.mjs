@@ -8,8 +8,8 @@ const { createNativeCore } = require('./index.cjs')
 
 const NL = String.fromCharCode(10)
 const log = (...a) => process.stderr.write(a.join(' ') + NL)
-const MODEL = process.env.CUBISM_TEST_MODEL ||
-  'C:/Users/33153/Desktop/DeepSeek免费公皮/DeepSeek/_opt2048/大肥鱼.moc3'
+const MODEL = process.env.CUBISM_TEST_MODEL || ''
+if (!MODEL) throw new Error('Set CUBISM_TEST_MODEL to a local licensed moc3 file')
 
 const core = createNativeCore()
 log('[core]', JSON.stringify(core.__info))
